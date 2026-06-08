@@ -1,0 +1,3653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--
+  v9SFFCNHKCLD
+  Release Version: 1.0
+  Build: v9 — Themes+ / Glyph Outline / Deep Scan / Matrices
+-->
+<title>Fontoscopy v9</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0d0d0f;
+    --bg2:       #141417;
+    --bg3:       #1c1c21;
+    --bg4:       #25252c;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.13);
+    --text:      #e8e8ed;
+    --text2:     #8e8e99;
+    --text3:     #55555f;
+    --accent:    #7b6ef6;
+    --accent2:   #5b4fd4;
+    --green:     #34c98a;
+    --green-bg:  rgba(52,201,138,0.10);
+    --yellow:    #f5c842;
+    --yellow-bg: rgba(245,200,66,0.10);
+    --red:       #f05a5a;
+    --red-bg:    rgba(240,90,90,0.10);
+    --blue:      #58b4f5;
+    --blue-bg:   rgba(88,180,245,0.10);
+    --orange:    #f5964a;
+    --orange-bg: rgba(245,150,74,0.10);
+    --radius:    10px;
+    --radius-lg: 16px;
+    --mono:      'Cascadia Code','Fira Code','Consolas',monospace;
+    --sans:      -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── APP SHELL ── */
+  .app-header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    background: var(--bg2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-logo {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .app-logo .logo-icon { font-size: 18px; }
+  .app-logo .logo-version {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+    font-weight: 400;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1px 6px;
+  }
+
+  /* ── TAB NAV ── */
+  .tab-nav {
+    display: flex;
+    gap: 2px;
+    padding: 12px 24px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    overflow-x: auto;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 13px;
+    font-family: var(--sans);
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: var(--radius) var(--radius) 0 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .tab-btn:hover { color: var(--text2); background: rgba(255,255,255,0.03); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(123,110,246,0.06); }
+  .tab-btn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+  /* ── CONTENT AREA ── */
+  .content { padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── UPLOAD ZONE ── */
+  .upload-zone {
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 56px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--bg2);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(123,110,246,0.05); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 40px; margin-bottom: 14px; }
+  .upload-zone h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .upload-zone p { color: var(--text2); font-size: 13px; }
+  .ext-badges { display: flex; justify-content: center; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+  .ext-badge { background: var(--bg4); border: 1px solid var(--border2); border-radius: 6px; padding: 2px 10px; font-size: 11px; font-family: var(--mono); color: var(--text2); }
+
+  /* ── LOADER ── */
+  .loader { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 64px 24px; gap: 16px; }
+  .loader.visible { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text { color: var(--text2); font-size: 13px; font-family: var(--mono); }
+
+  /* ── FONT HEADER ── */
+  .font-header {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .font-name-block { flex: 1; min-width: 200px; }
+  .font-name-block .fname { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .font-name-block .fmeta { color: var(--text2); font-size: 12px; font-family: var(--mono); margin-top: 4px; }
+  .font-stats { display: flex; gap: 24px; flex-wrap: wrap; }
+  .stat-item { text-align: center; }
+  .stat-item .val { font-size: 20px; font-weight: 700; color: var(--accent); font-family: var(--mono); }
+  .stat-item .lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+  /* ── OVERALL SCORE CARD ── */
+  .overall-card {
+    background: linear-gradient(135deg, #1a1830 0%, #141417 100%);
+    border: 1px solid rgba(123,110,246,0.25);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .overall-ring { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
+  .overall-ring svg { transform: rotate(-90deg); }
+  .overall-ring .ring-val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; font-family: var(--mono); color: var(--accent); }
+  .overall-info { flex: 1; min-width: 200px; }
+  .overall-info .grade-badge { display: inline-block; font-size: 28px; font-weight: 900; font-family: var(--mono); color: var(--accent); background: rgba(123,110,246,0.12); border: 1px solid rgba(123,110,246,0.3); border-radius: 8px; padding: 2px 14px; margin-bottom: 8px; }
+  .overall-info .verdict { font-size: 13px; color: var(--text2); }
+  .overall-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+
+  /* ── SCORE GRID ── */
+  .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .score-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; position: relative; overflow: hidden; }
+  .score-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .score-card.green::before { background: var(--green); }
+  .score-card.yellow::before { background: var(--yellow); }
+  .score-card.red::before { background: var(--red); }
+  .score-card.blue::before { background: var(--blue); }
+  .score-card .sc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 10px; }
+  .score-card .sc-number { font-size: 36px; font-weight: 800; font-family: var(--mono); line-height: 1; }
+  .score-card.green .sc-number { color: var(--green); }
+  .score-card.yellow .sc-number { color: var(--yellow); }
+  .score-card.red .sc-number { color: var(--red); }
+  .score-card.blue .sc-number { color: var(--blue); }
+  .score-card .sc-grade { font-size: 12px; color: var(--text2); margin-top: 6px; }
+  .score-card .sc-bar { height: 3px; background: var(--bg4); border-radius: 2px; margin-top: 12px; }
+  .score-card .sc-bar-fill { height: 100%; border-radius: 2px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+  .score-card.green .sc-bar-fill { background: var(--green); }
+  .score-card.yellow .sc-bar-fill { background: var(--yellow); }
+  .score-card.red .sc-bar-fill { background: var(--red); }
+  .score-card.blue .sc-bar-fill { background: var(--blue); }
+
+  /* ── SECTIONS ── */
+  .section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 16px; overflow: hidden; }
+  .section-header { padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
+  .section-header:hover { background: rgba(255,255,255,0.02); }
+  .section-title { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .section-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: var(--mono); }
+  .badge-ok   { background: var(--green-bg); color: var(--green); }
+  .badge-warn { background: var(--yellow-bg); color: var(--yellow); }
+  .badge-fail { background: var(--red-bg); color: var(--red); }
+  .badge-info { background: var(--blue-bg); color: var(--blue); }
+  .badge-orange { background: var(--orange-bg); color: var(--orange); }
+  .chevron { color: var(--text3); font-size: 16px; transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+  .section-body { padding: 16px 20px; }
+
+  /* ── ISSUE LIST ── */
+  .issue-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .issue-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border-radius: var(--radius); font-size: 13px; border: 1px solid transparent; }
+  .issue-item.critical { background: var(--red-bg); border-color: rgba(240,90,90,0.15); }
+  .issue-item.warning  { background: var(--yellow-bg); border-color: rgba(245,200,66,0.15); }
+  .issue-item.ok       { background: var(--green-bg); border-color: rgba(52,201,138,0.15); }
+  .issue-item.info     { background: var(--blue-bg); border-color: rgba(88,180,245,0.15); }
+  .issue-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .issue-item.critical .issue-dot { background: var(--red); }
+  .issue-item.warning  .issue-dot { background: var(--yellow); }
+  .issue-item.ok       .issue-dot { background: var(--green); }
+  .issue-item.info     .issue-dot { background: var(--blue); }
+  .issue-text { flex: 1; }
+  .issue-label { font-weight: 600; }
+  .issue-detail { color: var(--text2); font-size: 12px; margin-top: 2px; font-family: var(--mono); }
+
+  /* ── CODEPOINT GRID ── */
+  .cp-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .cp-tag { font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--bg4); border: 1px solid var(--border2); color: var(--text2); }
+  .cp-tag.missing { background: var(--red-bg); border-color: rgba(240,90,90,0.2); color: var(--red); }
+  .cp-tag.present { background: var(--green-bg); border-color: rgba(52,201,138,0.2); color: var(--green); }
+
+  /* ── TABLES ── */
+  .cov-table, .ot-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .cov-table th, .ot-table th { color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  .cov-table td, .ot-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .cov-table tr:last-child td, .ot-table tr:last-child td { border-bottom: none; }
+  .cov-bar-wrap { width: 80px; height: 4px; background: var(--bg4); border-radius: 2px; display: inline-block; vertical-align: middle; }
+  .cov-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+  .cov-pct { font-family: var(--mono); font-weight: 600; }
+  .tag-pill { background: var(--bg4); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 6px; color: var(--text); display: inline-block; font-family: var(--mono); font-size: 11px; }
+
+  /* ── BUTTONS ── */
+  .btn { border: none; border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; font-family: var(--sans); }
+  .btn:hover { opacity: 0.85; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-ghost { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+  /* ── EMPTY / MISC ── */
+  .empty-state { color: var(--text3); font-size: 13px; text-align: center; padding: 20px 0; font-style: italic; }
+
+  /* ────────────────────────────────────────────
+     CHUNK 2 — COVERAGE MATRIX STYLES
+  ──────────────────────────────────────────── */
+
+  /* Heatmap grid */
+  .heatmap-wrap { overflow-x: auto; }
+  .heatmap-grid {
+    display: grid;
+    gap: 3px;
+    min-width: 600px;
+  }
+  .heatmap-cell {
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.1s;
+    position: relative;
+  }
+  .heatmap-cell:hover { transform: scale(1.08); opacity: 0.9; }
+  .heatmap-label-row {
+    display: contents;
+  }
+  .heatmap-script-label {
+    font-size: 11px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+    white-space: nowrap;
+    font-family: var(--mono);
+  }
+  .heatmap-pct-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+  }
+
+  /* Legend */
+  .heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .legend-label { font-size: 11px; color: var(--text3); margin-right: 4px; }
+  .legend-swatch { width: 18px; height: 14px; border-radius: 3px; }
+  .legend-text { font-size: 11px; color: var(--text2); margin-right: 10px; }
+
+  /* Coverage summary cards */
+  .cov-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .cov-sum-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .cov-sum-card .csv { font-size: 26px; font-weight: 800; font-family: var(--mono); line-height: 1.1; }
+  .cov-sum-card .csl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 4px; }
+
+  /* Detail panel */
+  .cov-detail-panel {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-top: 14px;
+    font-size: 12px;
+    display: none;
+  }
+  .cov-detail-panel.visible { display: block; }
+  .cov-detail-title { font-weight: 600; font-size: 13px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .cov-detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 4px; max-height: 200px; overflow-y: auto; }
+  .cov-cp-item { font-family: var(--mono); font-size: 10px; padding: 3px 5px; border-radius: 3px; text-align: center; }
+  .cov-cp-item.has { background: rgba(52,201,138,0.12); color: var(--green); }
+  .cov-cp-item.no  { background: rgba(240,90,90,0.12); color: var(--red); }
+
+  /* Language list */
+  .lang-list {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+  }
+  .lang-tag {
+    font-size: 11px; padding: 3px 9px; border-radius: 5px;
+    border: 1px solid var(--border2);
+    font-family: var(--mono);
+  }
+  .lang-tag.full    { background: var(--green-bg); color: var(--green); border-color: rgba(52,201,138,0.2); }
+  .lang-tag.partial { background: var(--yellow-bg); color: var(--yellow); border-color: rgba(245,200,66,0.2); }
+  .lang-tag.none    { background: var(--bg4); color: var(--text3); }
+
+  /* ── FOOTER / CREDIT ── */
+  .app-footer {
+    border-top: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 32px;
+  }
+  .credit-line {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.04em;
+  }
+  .credit-line span { color: var(--text2); }
+
+  /* ── CHUNK 3: STRESS TEST STYLES ── */
+  .stress-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+  .stress-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stress-card::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .stress-card.pass::after  { background: var(--green); }
+  .stress-card.warn::after  { background: var(--yellow); }
+  .stress-card.fail::after  { background: var(--red); }
+  .stress-card.skip::after  { background: var(--text3); }
+  .stress-card.pending::after { background: var(--text3); }
+  .stress-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .stress-render {
+    font-size: 22px;
+    line-height: 1.5;
+    min-height: 36px;
+    padding: 6px 0;
+    word-break: break-all;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .stress-render.rtl { direction: rtl; text-align: right; }
+  .stress-info {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: var(--mono);
+    line-height: 1.5;
+  }
+  .stress-status {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-family: var(--mono);
+  }
+  .stress-status.pass  { background: var(--green-bg);  color: var(--green); }
+  .stress-status.warn  { background: var(--yellow-bg); color: var(--yellow); }
+  .stress-status.fail  { background: var(--red-bg);    color: var(--red); }
+  .stress-status.skip  { background: var(--bg4);       color: var(--text3); }
+  .waterfall-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .waterfall-row:last-child { border-bottom: none; }
+  .waterfall-size { font-size: 10px; font-family: var(--mono); color: var(--text3); width: 32px; flex-shrink: 0; }
+  .waterfall-text { color: var(--text); line-height: 1.3; }
+
+
+  /* ── CHUNK 4: SHAPING QA STYLES ── */
+  .cluster-card {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 56px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .cluster-card:hover { border-color: var(--accent); background: rgba(123,110,246,0.06); }
+  .cluster-card.selected { border-color: var(--accent); background: rgba(123,110,246,0.10); }
+  .cluster-card.missing  { border-color: rgba(240,90,90,0.4); background: var(--red-bg); }
+  .cluster-render {
+    font-size: 24px;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    min-width: 32px;
+    text-align: center;
+  }
+  .cluster-label {
+    font-size: 9px;
+    font-family: var(--mono);
+    color: var(--text3);
+    text-align: center;
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cluster-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    position: absolute; top: 5px; right: 5px;
+  }
+  .cluster-dot.ok      { background: var(--green); }
+  .cluster-dot.missing { background: var(--red); }
+  .cluster-dot.partial { background: var(--yellow); }
+
+  .feature-toggle-btn {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: var(--mono);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .feature-toggle-btn:hover { border-color: var(--accent); color: var(--text); }
+  .feature-toggle-btn.on {
+    background: rgba(123,110,246,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .script-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    font-family: var(--mono);
+    background: var(--bg3);
+    color: var(--text2);
+  }
+  .script-tag.detected {
+    background: rgba(123,110,246,0.12);
+    border-color: rgba(123,110,246,0.3);
+    color: var(--accent);
+  }
+
+  .gsub-chain {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .gsub-chain .arrow { color: var(--text3); }
+  .gsub-chain .glyph-box {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 16px;
+  }
+  .gsub-chain .tag-box {
+    background: rgba(123,110,246,0.1);
+    border: 1px solid rgba(123,110,246,0.2);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+
+  /* ── THEME BUTTONS ── */
+  .thm-btn {
+    background:var(--bg4); border:1px solid var(--border2); color:var(--text3);
+    border-radius:5px; padding:3px 8px; font-size:10px; cursor:pointer;
+    font-family:var(--mono); transition:all 0.15s; letter-spacing:0.03em;
+  }
+  .thm-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .thm-btn.active { border-color:var(--accent); color:var(--accent); background:rgba(123,110,246,0.15); }
+
+  /* ── GLYPH CELLS ── */
+  .glyph-cell {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:var(--bg3); border:1px solid var(--border); border-radius:6px;
+    padding:6px 4px 4px; cursor:pointer;
+    transition:border-color 0.12s,transform 0.1s; user-select:none;
+  }
+  .glyph-cell:hover { border-color:var(--accent); transform:scale(1.06); }
+  .glyph-cell.selected { border-color:var(--accent); background:rgba(123,110,246,0.14); }
+  .gc-char { line-height:1.2; color:var(--text); text-align:center; display:flex; align-items:center; justify-content:center; }
+  .gc-hex { font-size:9px; font-family:var(--mono); color:var(--text3); margin-top:3px; text-align:center; }
+  .page-btn { background:var(--bg4); border:1px solid var(--border2); color:var(--text2); border-radius:6px; padding:4px 10px; font-size:11px; font-family:var(--mono); cursor:pointer; transition:all 0.15s; }
+  .page-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .page-btn.cur { background:rgba(123,110,246,0.15); border-color:var(--accent); color:var(--accent); }
+  .page-btn:disabled { opacity:0.3; cursor:not-allowed; }
+
+  /* ════ SCIFI THEME ════ */
+  :root[data-theme="scifi"] {
+    --bg:#06090f; --bg2:#0a0f1a; --bg3:#0d1525; --bg4:#111d33;
+    --border:rgba(0,200,255,0.10); --border2:rgba(0,200,255,0.22);
+    --text:#c8f0ff; --text2:#6ba8cc; --text3:#2a5070;
+    --accent:#00d4ff; --accent2:#0096cc;
+    --green:#00ffc8; --green-bg:rgba(0,255,200,0.08);
+    --yellow:#ffe066; --yellow-bg:rgba(255,224,102,0.08);
+    --red:#ff4466; --red-bg:rgba(255,68,102,0.08);
+    --blue:#00d4ff; --blue-bg:rgba(0,212,255,0.08);
+  }
+  [data-theme="scifi"] body, [data-theme="scifi"] {
+    background:radial-gradient(ellipse at 20% 0%,#001830 0%,#06090f 60%);
+  }
+  [data-theme="scifi"] .app-header { background:rgba(6,9,15,0.96); border-bottom:1px solid rgba(0,212,255,0.2); box-shadow:0 1px 20px rgba(0,212,255,0.08); }
+  [data-theme="scifi"] .tab-nav { background:rgba(10,15,26,0.96); border-bottom:1px solid rgba(0,212,255,0.15); }
+  [data-theme="scifi"] .tab-btn.active { color:#00d4ff; border-bottom-color:#00d4ff; text-shadow:0 0 10px rgba(0,212,255,0.7); background:rgba(0,212,255,0.05); }
+  [data-theme="scifi"] .score-card { background:linear-gradient(135deg,#0a0f1a,#0d1525); border:1px solid rgba(0,212,255,0.15); }
+  [data-theme="scifi"] .score-card.green::before { background:#00ffc8; box-shadow:0 0 10px #00ffc8; }
+  [data-theme="scifi"] .score-card.yellow::before { background:#ffe066; box-shadow:0 0 10px #ffe066; }
+  [data-theme="scifi"] .score-card.red::before { background:#ff4466; box-shadow:0 0 10px #ff4466; }
+  [data-theme="scifi"] .overall-card { background:linear-gradient(135deg,#061525,#0a0f1a); border:1px solid rgba(0,212,255,0.3); box-shadow:0 0 30px rgba(0,212,255,0.06); }
+  [data-theme="scifi"] .section { border:1px solid rgba(0,212,255,0.12); background:rgba(10,15,26,0.8); }
+  [data-theme="scifi"] .section-header { border-bottom:1px solid rgba(0,212,255,0.10); }
+  [data-theme="scifi"] .btn-primary { background:linear-gradient(135deg,#0096cc,#00d4ff); box-shadow:0 0 20px rgba(0,212,255,0.3); }
+  [data-theme="scifi"] .btn-ghost { border-color:rgba(0,212,255,0.3); color:#6ba8cc; }
+  [data-theme="scifi"] .btn-ghost:hover { border-color:#00d4ff; color:#00d4ff; box-shadow:0 0 12px rgba(0,212,255,0.2); }
+  [data-theme="scifi"] .font-header { background:linear-gradient(135deg,#0a1020,#0d1525); border:1px solid rgba(0,212,255,0.2); }
+  [data-theme="scifi"] .upload-zone { background:rgba(6,9,15,0.9); border-color:rgba(0,212,255,0.2); }
+  [data-theme="scifi"] .upload-zone:hover { border-color:#00d4ff; box-shadow:0 0 30px rgba(0,212,255,0.12); }
+  [data-theme="scifi"] .glyph-cell { border-color:rgba(0,212,255,0.12); background:rgba(13,21,37,0.8); }
+  [data-theme="scifi"] .glyph-cell:hover { border-color:#00d4ff; box-shadow:0 0 12px rgba(0,212,255,0.2); }
+  [data-theme="scifi"] .overall-info .grade-badge { color:#00d4ff; background:rgba(0,212,255,0.1); border-color:rgba(0,212,255,0.4); text-shadow:0 0 15px rgba(0,212,255,0.7); }
+  [data-theme="scifi"] #ringCircle { stroke:#00d4ff !important; filter:drop-shadow(0 0 6px #00d4ff); }
+  [data-theme="scifi"] .thm-btn.active { border-color:#00d4ff; color:#00d4ff; }
+  [data-theme="scifi"] .tag-pill { border-color:rgba(0,212,255,0.2); background:rgba(0,212,255,0.06); }
+  [data-theme="scifi"] .credit-line { color:rgba(0,212,255,0.3); }
+  [data-theme="scifi"] .credit-line span { color:rgba(0,212,255,0.5); }
+
+  /* ════ CYBERPUNK THEME ════ */
+  :root[data-theme="cyber"] {
+    --bg:#0f0014; --bg2:#160020; --bg3:#1e0030; --bg4:#280040;
+    --border:rgba(255,0,200,0.10); --border2:rgba(255,0,200,0.22);
+    --text:#ffe0ff; --text2:#bb80cc; --text3:#604070;
+    --accent:#ff00cc; --accent2:#cc0099;
+    --green:#00ffaa; --green-bg:rgba(0,255,170,0.08);
+    --yellow:#ffee00; --yellow-bg:rgba(255,238,0,0.08);
+    --red:#ff2244; --red-bg:rgba(255,34,68,0.08);
+    --blue:#00ccff; --blue-bg:rgba(0,204,255,0.08);
+  }
+  [data-theme="cyber"] .app-header { background:rgba(15,0,20,0.97); border-bottom:1px solid rgba(255,0,204,0.25); box-shadow:0 1px 25px rgba(255,0,204,0.08); }
+  [data-theme="cyber"] .tab-nav { background:rgba(22,0,32,0.97); border-bottom:1px solid rgba(255,0,204,0.15); }
+  [data-theme="cyber"] .tab-btn.active { color:#ff00cc; border-bottom-color:#ff00cc; text-shadow:0 0 12px rgba(255,0,204,0.8); background:rgba(255,0,204,0.06); }
+  [data-theme="cyber"] .score-card { background:linear-gradient(135deg,#160020,#1e0030); border:1px solid rgba(255,0,204,0.15); }
+  [data-theme="cyber"] .score-card.green::before { background:#00ffaa; box-shadow:0 0 12px #00ffaa; }
+  [data-theme="cyber"] .score-card.yellow::before { background:#ffee00; box-shadow:0 0 12px #ffee00; }
+  [data-theme="cyber"] .score-card.red::before { background:#ff2244; box-shadow:0 0 12px #ff2244; }
+  [data-theme="cyber"] .overall-card { background:linear-gradient(135deg,#140020,#1e0030); border:1px solid rgba(255,0,204,0.35); box-shadow:0 0 40px rgba(255,0,204,0.06); }
+  [data-theme="cyber"] .section { border:1px solid rgba(255,0,204,0.12); background:rgba(22,0,32,0.8); }
+  [data-theme="cyber"] .section-header { border-bottom:1px solid rgba(255,0,204,0.10); }
+  [data-theme="cyber"] .btn-primary { background:linear-gradient(135deg,#cc0099,#ff00cc); box-shadow:0 0 20px rgba(255,0,204,0.35); }
+  [data-theme="cyber"] .btn-ghost { border-color:rgba(255,0,204,0.3); color:#bb80cc; }
+  [data-theme="cyber"] .btn-ghost:hover { border-color:#ff00cc; color:#ff00cc; box-shadow:0 0 14px rgba(255,0,204,0.25); }
+  [data-theme="cyber"] .font-header { background:linear-gradient(135deg,#160020,#1e0030); border:1px solid rgba(255,0,204,0.2); }
+  [data-theme="cyber"] .upload-zone { background:rgba(15,0,20,0.9); border-color:rgba(255,0,204,0.2); }
+  [data-theme="cyber"] .upload-zone:hover { border-color:#ff00cc; box-shadow:0 0 35px rgba(255,0,204,0.15); }
+  [data-theme="cyber"] .glyph-cell { border-color:rgba(255,0,204,0.12); background:rgba(22,0,32,0.8); }
+  [data-theme="cyber"] .glyph-cell:hover { border-color:#ff00cc; box-shadow:0 0 14px rgba(255,0,204,0.2); }
+  [data-theme="cyber"] .overall-info .grade-badge { color:#ff00cc; background:rgba(255,0,204,0.1); border-color:rgba(255,0,204,0.4); text-shadow:0 0 18px rgba(255,0,204,0.8); }
+  [data-theme="cyber"] #ringCircle { stroke:#ff00cc !important; filter:drop-shadow(0 0 8px #ff00cc); }
+
+  /* ════ MATRIX THEME ════ */
+  :root[data-theme="matrix"] {
+    --bg:#000800; --bg2:#001200; --bg3:#001a00; --bg4:#002400;
+    --border:rgba(0,255,0,0.08); --border2:rgba(0,255,0,0.18);
+    --text:#c8ffc8; --text2:#60aa60; --text3:#204020;
+    --accent:#00ff41; --accent2:#00cc33;
+    --green:#00ff41; --green-bg:rgba(0,255,65,0.08);
+    --yellow:#aaff00; --yellow-bg:rgba(170,255,0,0.08);
+    --red:#ff4400; --red-bg:rgba(255,68,0,0.08);
+    --blue:#00ffcc; --blue-bg:rgba(0,255,204,0.08);
+  }
+  [data-theme="matrix"] .app-header { background:rgba(0,8,0,0.98); border-bottom:1px solid rgba(0,255,65,0.2); box-shadow:0 1px 20px rgba(0,255,65,0.06); font-family:var(--mono); }
+  [data-theme="matrix"] .tab-nav { background:rgba(0,12,0,0.98); border-bottom:1px solid rgba(0,255,65,0.12); }
+  [data-theme="matrix"] .tab-btn { font-family:var(--mono) !important; }
+  [data-theme="matrix"] .tab-btn.active { color:#00ff41; border-bottom-color:#00ff41; text-shadow:0 0 10px rgba(0,255,65,0.8); background:rgba(0,255,65,0.04); }
+  [data-theme="matrix"] .score-card { background:linear-gradient(135deg,#001200,#001a00); border:1px solid rgba(0,255,65,0.13); }
+  [data-theme="matrix"] .score-card.green::before { background:#00ff41; box-shadow:0 0 14px #00ff41; }
+  [data-theme="matrix"] .score-card.yellow::before { background:#aaff00; box-shadow:0 0 14px #aaff00; }
+  [data-theme="matrix"] .score-card.red::before { background:#ff4400; box-shadow:0 0 14px #ff4400; }
+  [data-theme="matrix"] .overall-card { background:linear-gradient(135deg,#001000,#001a00); border:1px solid rgba(0,255,65,0.3); box-shadow:0 0 35px rgba(0,255,65,0.05); }
+  [data-theme="matrix"] .section { border:1px solid rgba(0,255,65,0.10); background:rgba(0,12,0,0.85); }
+  [data-theme="matrix"] .section-header { border-bottom:1px solid rgba(0,255,65,0.08); }
+  [data-theme="matrix"] .btn-primary { background:linear-gradient(135deg,#00aa2a,#00ff41); box-shadow:0 0 20px rgba(0,255,65,0.3); color:#000; font-family:var(--mono); }
+  [data-theme="matrix"] .btn-ghost { border-color:rgba(0,255,65,0.25); color:#60aa60; font-family:var(--mono); }
+  [data-theme="matrix"] .btn-ghost:hover { border-color:#00ff41; color:#00ff41; box-shadow:0 0 12px rgba(0,255,65,0.2); }
+  [data-theme="matrix"] .font-header { background:linear-gradient(135deg,#001200,#001a00); border:1px solid rgba(0,255,65,0.18); }
+  [data-theme="matrix"] .upload-zone { background:rgba(0,8,0,0.95); border-color:rgba(0,255,65,0.18); }
+  [data-theme="matrix"] .upload-zone:hover { border-color:#00ff41; box-shadow:0 0 30px rgba(0,255,65,0.12); }
+  [data-theme="matrix"] .glyph-cell { border-color:rgba(0,255,65,0.10); background:rgba(0,12,0,0.8); font-family:var(--mono); }
+  [data-theme="matrix"] .glyph-cell:hover { border-color:#00ff41; box-shadow:0 0 12px rgba(0,255,65,0.18); }
+  [data-theme="matrix"] .overall-info .grade-badge { color:#00ff41; background:rgba(0,255,65,0.08); border-color:rgba(0,255,65,0.4); text-shadow:0 0 16px rgba(0,255,65,0.8); font-family:var(--mono); }
+  [data-theme="matrix"] #ringCircle { stroke:#00ff41 !important; filter:drop-shadow(0 0 8px #00ff41); }
+  [data-theme="matrix"] .credit-line { color:rgba(0,255,65,0.25); }
+  [data-theme="matrix"] .credit-line span { color:rgba(0,255,65,0.45); }
+
+
+  /* ── OUTLINE MODE BUTTONS ── */
+  .outline-btn {
+    background:var(--bg4); border:1px solid var(--border2); color:var(--text3);
+    border-radius:5px; padding:3px 9px; font-size:10px; font-family:var(--mono);
+    cursor:pointer; transition:all 0.15s; letter-spacing:0.03em;
+  }
+  .outline-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .outline-btn.active { background:rgba(123,110,246,0.15); border-color:var(--accent); color:var(--accent); }
+
+  /* ── MATRIX CELLS ── */
+  .matrix-cell {
+    background:var(--bg3); border:1px solid var(--border); border-radius:7px;
+    padding:8px 10px; font-size:11px; text-align:center;
+  }
+  .matrix-cell .mc-val { font-size:16px; font-weight:700; font-family:var(--mono); color:var(--accent); line-height:1.2; }
+  .matrix-cell .mc-lbl { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
+  .matrix-cell .mc-bar { height:2px; background:var(--bg4); border-radius:1px; margin-top:6px; }
+  .matrix-cell .mc-bar-fill { height:100%; border-radius:1px; background:var(--accent); }
+
+  /* ════ LIGHT THEME ════ */
+  :root[data-theme="light"] {
+    --bg:#f0f2f5; --bg2:#ffffff; --bg3:#f5f7fa; --bg4:#e8ecf1;
+    --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.15);
+    --text:#1a1a2e; --text2:#4a5568; --text3:#9aa5b4;
+    --accent:#5b4fd4; --accent2:#4338ca;
+    --green:#16a34a; --green-bg:rgba(22,163,74,0.08);
+    --yellow:#d97706; --yellow-bg:rgba(217,119,6,0.08);
+    --red:#dc2626; --red-bg:rgba(220,38,38,0.08);
+    --blue:#2563eb; --blue-bg:rgba(37,99,235,0.08);
+  }
+  [data-theme="light"] .app-header { background:#fff; border-bottom:1px solid rgba(0,0,0,0.1); box-shadow:0 1px 8px rgba(0,0,0,0.06); }
+  [data-theme="light"] .tab-nav { background:#fff; border-bottom:1px solid rgba(0,0,0,0.08); }
+  [data-theme="light"] .tab-btn { color:#6b7280; }
+  [data-theme="light"] .tab-btn:hover { background:rgba(91,79,212,0.05); }
+  [data-theme="light"] .tab-btn.active { color:#5b4fd4; border-bottom-color:#5b4fd4; background:rgba(91,79,212,0.06); }
+  [data-theme="light"] .score-card { background:#fff; border:1px solid rgba(0,0,0,0.09); box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+  [data-theme="light"] .overall-card { background:linear-gradient(135deg,#f0eeff,#fff); border:1px solid rgba(91,79,212,0.2); box-shadow:0 2px 12px rgba(91,79,212,0.06); }
+  [data-theme="light"] .section { background:#fff; border:1px solid rgba(0,0,0,0.08); box-shadow:0 1px 3px rgba(0,0,0,0.03); }
+  [data-theme="light"] .section-header { border-bottom:1px solid rgba(0,0,0,0.07); }
+  [data-theme="light"] .section-header:hover { background:rgba(0,0,0,0.02); }
+  [data-theme="light"] .font-header { background:#fff; border:1px solid rgba(0,0,0,0.09); }
+  [data-theme="light"] .upload-zone { background:#fff; border-color:rgba(0,0,0,0.15); }
+  [data-theme="light"] .upload-zone:hover { border-color:#5b4fd4; background:rgba(91,79,212,0.02); }
+  [data-theme="light"] .btn-primary { background:#5b4fd4; box-shadow:0 2px 8px rgba(91,79,212,0.25); }
+  [data-theme="light"] .btn-ghost { background:#f0f2f5; border-color:rgba(0,0,0,0.12); color:#4a5568; }
+  [data-theme="light"] .btn-ghost:hover { border-color:#5b4fd4; color:#5b4fd4; background:#f0eeff; }
+  [data-theme="light"] .glyph-cell { background:#f5f7fa; border-color:rgba(0,0,0,0.08); }
+  [data-theme="light"] .glyph-cell:hover { border-color:#5b4fd4; background:#f0eeff; }
+  [data-theme="light"] .tag-pill { background:#e8ecf1; border-color:rgba(0,0,0,0.1); color:#1a1a2e; }
+  [data-theme="light"] #ringCircle { stroke:#5b4fd4 !important; }
+  [data-theme="light"] .overall-info .grade-badge { color:#5b4fd4; background:rgba(91,79,212,0.08); border-color:rgba(91,79,212,0.25); }
+  [data-theme="light"] .ext-badge { background:#e8ecf1; border-color:rgba(0,0,0,0.1); }
+  [data-theme="light"] .credit-line { color:#9aa5b4; }
+  [data-theme="light"] .credit-line span { color:#6b7280; }
+  [data-theme="light"] .thm-btn { background:#e8ecf1; border-color:rgba(0,0,0,0.12); color:#6b7280; }
+  [data-theme="light"] .thm-btn.active { border-color:#5b4fd4; color:#5b4fd4; background:#f0eeff; }
+  [data-theme="light"] .outline-btn { background:#e8ecf1; border-color:rgba(0,0,0,0.12); color:#6b7280; }
+  [data-theme="light"] .outline-btn.active { background:#f0eeff; border-color:#5b4fd4; color:#5b4fd4; }
+  [data-theme="light"] .matrix-cell { background:#f5f7fa; border-color:rgba(0,0,0,0.08); }
+  [data-theme="light"] canvas { background:#f5f7fa !important; }
+
+  /* ════ RETRO TERMINAL THEME ════ */
+  :root[data-theme="retro"] {
+    --bg:#0a0800; --bg2:#110f00; --bg3:#181400; --bg4:#221e00;
+    --border:rgba(255,200,0,0.10); --border2:rgba(255,200,0,0.22);
+    --text:#ffe680; --text2:#b39a00; --text3:#4d4200;
+    --accent:#ffd700; --accent2:#ccaa00;
+    --green:#80ff40; --green-bg:rgba(128,255,64,0.08);
+    --yellow:#ffd700; --yellow-bg:rgba(255,215,0,0.08);
+    --red:#ff4400; --red-bg:rgba(255,68,0,0.08);
+    --blue:#00ccff; --blue-bg:rgba(0,204,255,0.08);
+  }
+  [data-theme="retro"] * { font-family:'Cascadia Code','Fira Code','Consolas',monospace !important; }
+  [data-theme="retro"] .app-header { background:rgba(10,8,0,0.98); border-bottom:1px solid rgba(255,215,0,0.2); }
+  [data-theme="retro"] .tab-nav { background:rgba(11,9,0,0.98); border-bottom:1px solid rgba(255,215,0,0.12); }
+  [data-theme="retro"] .tab-btn.active { color:#ffd700; border-bottom-color:#ffd700; text-shadow:0 0 8px rgba(255,215,0,0.7); }
+  [data-theme="retro"] .score-card { background:rgba(17,15,0,0.9); border:1px solid rgba(255,215,0,0.12); }
+  [data-theme="retro"] .score-card.green::before { background:#80ff40; box-shadow:0 0 10px #80ff40; }
+  [data-theme="retro"] .score-card.yellow::before { background:#ffd700; box-shadow:0 0 10px #ffd700; }
+  [data-theme="retro"] .score-card.red::before { background:#ff4400; box-shadow:0 0 10px #ff4400; }
+  [data-theme="retro"] .overall-card { background:rgba(17,15,0,0.95); border:1px solid rgba(255,215,0,0.3); box-shadow:0 0 25px rgba(255,215,0,0.05); }
+  [data-theme="retro"] .section { background:rgba(11,9,0,0.9); border:1px solid rgba(255,215,0,0.10); }
+  [data-theme="retro"] .btn-primary { background:linear-gradient(135deg,#aa8800,#ffd700); color:#000; box-shadow:0 0 15px rgba(255,215,0,0.3); }
+  [data-theme="retro"] .btn-ghost { border-color:rgba(255,215,0,0.25); color:#b39a00; }
+  [data-theme="retro"] .btn-ghost:hover { border-color:#ffd700; color:#ffd700; box-shadow:0 0 10px rgba(255,215,0,0.2); }
+  [data-theme="retro"] .upload-zone { background:rgba(10,8,0,0.95); border-color:rgba(255,215,0,0.18); }
+  [data-theme="retro"] .upload-zone:hover { border-color:#ffd700; box-shadow:0 0 25px rgba(255,215,0,0.12); }
+  [data-theme="retro"] #ringCircle { stroke:#ffd700 !important; filter:drop-shadow(0 0 6px #ffd700); }
+  [data-theme="retro"] .overall-info .grade-badge { color:#ffd700; background:rgba(255,215,0,0.08); border-color:rgba(255,215,0,0.35); text-shadow:0 0 12px rgba(255,215,0,0.7); }
+  [data-theme="retro"] .glyph-cell { border-color:rgba(255,215,0,0.10); background:rgba(17,15,0,0.8); }
+  [data-theme="retro"] .glyph-cell:hover { border-color:#ffd700; box-shadow:0 0 10px rgba(255,215,0,0.2); }
+
+  /* ════ AURORA THEME ════ */
+  :root[data-theme="aurora"] {
+    --bg:#060a14; --bg2:#0a1020; --bg3:#0e1828; --bg4:#142030;
+    --border:rgba(100,200,180,0.10); --border2:rgba(100,200,180,0.20);
+    --text:#d4f5ee; --text2:#6ba898; --text3:#2a4840;
+    --accent:#40e0c0; --accent2:#20c0a0;
+    --green:#40ff80; --green-bg:rgba(64,255,128,0.08);
+    --yellow:#80ffaa; --yellow-bg:rgba(128,255,170,0.08);
+    --red:#ff6080; --red-bg:rgba(255,96,128,0.08);
+    --blue:#40c0ff; --blue-bg:rgba(64,192,255,0.08);
+  }
+  [data-theme="aurora"] body { background:radial-gradient(ellipse at 50% -20%,#0a2840 0%,#060a14 55%); }
+  [data-theme="aurora"] .app-header { background:rgba(6,10,20,0.95); border-bottom:1px solid rgba(64,224,192,0.18); box-shadow:0 1px 20px rgba(64,224,192,0.06); }
+  [data-theme="aurora"] .tab-nav { background:rgba(8,13,25,0.95); border-bottom:1px solid rgba(64,224,192,0.12); }
+  [data-theme="aurora"] .tab-btn.active { color:#40e0c0; border-bottom-color:#40e0c0; text-shadow:0 0 10px rgba(64,224,192,0.7); background:rgba(64,224,192,0.05); }
+  [data-theme="aurora"] .score-card { background:linear-gradient(135deg,#0a1020,#0e1828); border:1px solid rgba(64,224,192,0.12); }
+  [data-theme="aurora"] .score-card.green::before { background:#40ff80; box-shadow:0 0 12px #40ff80; }
+  [data-theme="aurora"] .score-card.yellow::before { background:#80ffaa; box-shadow:0 0 12px #80ffaa; }
+  [data-theme="aurora"] .score-card.red::before { background:#ff6080; box-shadow:0 0 12px #ff6080; }
+  [data-theme="aurora"] .overall-card { background:linear-gradient(135deg,#081830,#0a1020); border:1px solid rgba(64,224,192,0.28); box-shadow:0 0 40px rgba(64,224,192,0.06); }
+  [data-theme="aurora"] .section { background:rgba(10,16,32,0.8); border:1px solid rgba(64,224,192,0.10); }
+  [data-theme="aurora"] .section-header { border-bottom:1px solid rgba(64,224,192,0.08); }
+  [data-theme="aurora"] .btn-primary { background:linear-gradient(135deg,#20c0a0,#40e0c0); box-shadow:0 0 20px rgba(64,224,192,0.3); color:#000; }
+  [data-theme="aurora"] .btn-ghost { border-color:rgba(64,224,192,0.25); color:#6ba898; }
+  [data-theme="aurora"] .btn-ghost:hover { border-color:#40e0c0; color:#40e0c0; box-shadow:0 0 12px rgba(64,224,192,0.2); }
+  [data-theme="aurora"] .upload-zone { background:rgba(6,10,20,0.9); border-color:rgba(64,224,192,0.18); }
+  [data-theme="aurora"] .upload-zone:hover { border-color:#40e0c0; box-shadow:0 0 30px rgba(64,224,192,0.12); }
+  [data-theme="aurora"] .glyph-cell { border-color:rgba(64,224,192,0.10); background:rgba(14,24,40,0.8); }
+  [data-theme="aurora"] .glyph-cell:hover { border-color:#40e0c0; box-shadow:0 0 12px rgba(64,224,192,0.2); }
+  [data-theme="aurora"] #ringCircle { stroke:#40e0c0 !important; filter:drop-shadow(0 0 6px #40e0c0); }
+  [data-theme="aurora"] .overall-info .grade-badge { color:#40e0c0; background:rgba(64,224,192,0.10); border-color:rgba(64,224,192,0.35); text-shadow:0 0 14px rgba(64,224,192,0.7); }
+  [data-theme="aurora"] .font-header { background:linear-gradient(135deg,#0a1828,#0e2030); border:1px solid rgba(64,224,192,0.18); }
+
+  /* ════ BLOOD RED THEME ════ */
+  :root[data-theme="blood"] {
+    --bg:#0a0000; --bg2:#130000; --bg3:#1a0000; --bg4:#220000;
+    --border:rgba(255,0,0,0.10); --border2:rgba(255,50,50,0.22);
+    --text:#ffd0d0; --text2:#cc6060; --text3:#602020;
+    --accent:#ff2020; --accent2:#cc0000;
+    --green:#ff6040; --green-bg:rgba(255,96,64,0.08);
+    --yellow:#ff9900; --yellow-bg:rgba(255,153,0,0.08);
+    --red:#ff0000; --red-bg:rgba(255,0,0,0.10);
+    --blue:#ff4080; --blue-bg:rgba(255,64,128,0.08);
+  }
+  [data-theme="blood"] body { background:radial-gradient(ellipse at 50% 0%,#1a0000 0%,#0a0000 60%); }
+  [data-theme="blood"] .app-header { background:rgba(10,0,0,0.98); border-bottom:1px solid rgba(255,32,32,0.2); box-shadow:0 1px 20px rgba(255,0,0,0.08); }
+  [data-theme="blood"] .tab-nav { background:rgba(13,0,0,0.98); border-bottom:1px solid rgba(255,32,32,0.14); }
+  [data-theme="blood"] .tab-btn.active { color:#ff2020; border-bottom-color:#ff2020; text-shadow:0 0 10px rgba(255,32,32,0.8); background:rgba(255,32,32,0.06); }
+  [data-theme="blood"] .score-card { background:linear-gradient(135deg,#130000,#1a0000); border:1px solid rgba(255,32,32,0.14); }
+  [data-theme="blood"] .score-card.green::before { background:#ff6040; box-shadow:0 0 12px #ff6040; }
+  [data-theme="blood"] .score-card.yellow::before { background:#ff9900; box-shadow:0 0 12px #ff9900; }
+  [data-theme="blood"] .score-card.red::before { background:#ff0000; box-shadow:0 0 14px #ff0000; }
+  [data-theme="blood"] .overall-card { background:linear-gradient(135deg,#120000,#1a0000); border:1px solid rgba(255,32,32,0.32); box-shadow:0 0 35px rgba(255,0,0,0.07); }
+  [data-theme="blood"] .section { background:rgba(13,0,0,0.85); border:1px solid rgba(255,32,32,0.10); }
+  [data-theme="blood"] .section-header { border-bottom:1px solid rgba(255,32,32,0.08); }
+  [data-theme="blood"] .btn-primary { background:linear-gradient(135deg,#aa0000,#ff2020); box-shadow:0 0 20px rgba(255,0,0,0.35); }
+  [data-theme="blood"] .btn-ghost { border-color:rgba(255,32,32,0.28); color:#cc6060; }
+  [data-theme="blood"] .btn-ghost:hover { border-color:#ff2020; color:#ff2020; box-shadow:0 0 12px rgba(255,0,0,0.2); }
+  [data-theme="blood"] .upload-zone { background:rgba(10,0,0,0.95); border-color:rgba(255,32,32,0.18); }
+  [data-theme="blood"] .upload-zone:hover { border-color:#ff2020; box-shadow:0 0 30px rgba(255,0,0,0.14); }
+  [data-theme="blood"] .glyph-cell { border-color:rgba(255,32,32,0.10); background:rgba(19,0,0,0.8); }
+  [data-theme="blood"] .glyph-cell:hover { border-color:#ff2020; box-shadow:0 0 12px rgba(255,0,0,0.2); }
+  [data-theme="blood"] #ringCircle { stroke:#ff2020 !important; filter:drop-shadow(0 0 8px #ff2020); }
+  [data-theme="blood"] .overall-info .grade-badge { color:#ff2020; background:rgba(255,32,32,0.10); border-color:rgba(255,32,32,0.38); text-shadow:0 0 16px rgba(255,0,0,0.8); }
+  [data-theme="blood"] .font-header { background:linear-gradient(135deg,#130000,#1a0000); border:1px solid rgba(255,32,32,0.2); }
+
+
+  /* ══════════════════════════════════════
+     MOBILE RESPONSIVE
+  ══════════════════════════════════════ */
+  @media (max-width: 768px) {
+    body { font-size: 13px; }
+    .content { padding: 12px; }
+
+    /* Header */
+    .app-header { height: auto; padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
+    .app-logo { font-size: 14px; }
+    .app-logo .logo-icon { font-size: 16px; }
+
+    /* Theme buttons: smaller */
+    .thm-btn { padding: 2px 5px; font-size: 9px; border-radius: 4px; }
+
+    /* Tab nav: scrollable */
+    .tab-nav { padding: 8px 12px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+    .tab-btn { font-size: 11px; padding: 6px 10px; white-space: nowrap; }
+
+    /* Font header: stack vertically */
+    .font-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px; }
+    .font-stats { gap: 12px; }
+    .stat-item .val { font-size: 16px; }
+
+    /* Overall card: stack */
+    .overall-card { flex-direction: column; gap: 14px; padding: 14px; }
+    .overall-ring { width: 70px; height: 70px; }
+    .overall-ring svg { width: 70px; height: 70px; }
+    .overall-info .grade-badge { font-size: 22px; }
+    .overall-actions { flex-direction: row; flex-wrap: wrap; }
+
+    /* Score grid: 2 cols on mobile */
+    .score-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .score-card { padding: 12px 14px; }
+    .score-card .sc-number { font-size: 28px; }
+
+    /* Section body: horizontal scroll for tables */
+    .section-body { padding: 10px 12px; overflow-x: auto; }
+    .cov-table, .ot-table { min-width: 480px; }
+
+    /* Upload zone */
+    .upload-zone { padding: 32px 16px; }
+    .upload-icon { font-size: 28px; }
+    .upload-zone h2 { font-size: 14px; }
+    .ext-badges { gap: 4px; }
+
+    /* Glyph browser */
+    #glyphGrid { gap: 3px; }
+    .glyph-cell { min-width: unset; }
+
+    /* Glyph detail: stack columns */
+    #glyphDetailPanel .section-body > div[style*="grid"] {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    /* Canvas wrap: full width */
+    #canvasWrap { touch-action: none; }
+    #glyphCanvas { height: 200px; }
+
+    /* Matrices: 3 cols */
+    #matricesGrid { grid-template-columns: repeat(3, 1fr) !important; }
+    .matrix-cell { padding: 6px 8px; }
+    .matrix-cell .mc-val { font-size: 13px; }
+
+    /* Stress grid: 1 col */
+    .stress-grid { grid-template-columns: 1fr !important; }
+
+    /* Shaping tab */
+    #previewPanels { grid-template-columns: 1fr !important; }
+
+    /* Coverage summary */
+    .cov-summary-grid { grid-template-columns: repeat(3,1fr) !important; gap: 6px; }
+    .cov-sum-card .csv { font-size: 20px; }
+
+    /* Heatmap scrollable */
+    .heatmap-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    /* Buttons: wrap nicely */
+    .btn-row { flex-wrap: wrap; gap: 6px; }
+    .btn { padding: 7px 12px; font-size: 11px; }
+    .btn-primary { padding: 8px 14px; }
+
+    /* Footer */
+    .app-footer { flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 12px; }
+    .credit-line { font-size: 9px; }
+
+    /* Cluster grid: smaller cards */
+    .cluster-card { min-width: 44px; padding: 5px 3px 3px; }
+    .cluster-render { font-size: 18px !important; }
+
+    /* Feature toggle */
+    #featureToggleGrid { gap: 4px; }
+    .feature-toggle-btn { padding: 3px 7px; font-size: 10px; }
+
+    /* Tables: ensure scroll */
+    .ot-table td, .cov-table td { font-size: 11px; padding: 5px 7px; }
+
+    /* Inspector table */
+    #gdTable td { font-size: 11px; padding: 2px 6px; }
+
+    /* Waterfall: limit size */
+    .waterfall-text { font-size: inherit !important; }
+
+    /* Language list */
+    .lang-list { gap: 4px; }
+    .lang-tag { font-size: 10px; padding: 2px 7px; }
+
+    /* Section headers */
+    .section-header { padding: 10px 14px; }
+    .section-title { font-size: 12px; }
+    .section-badge { font-size: 9px; padding: 1px 6px; }
+  }
+
+  @media (max-width: 480px) {
+    .score-grid { grid-template-columns: 1fr 1fr; }
+    .cov-summary-grid { grid-template-columns: repeat(2,1fr) !important; }
+    #matricesGrid { grid-template-columns: repeat(2,1fr) !important; }
+    .tab-btn { font-size: 10px; padding: 5px 8px; }
+    .thm-btn { padding: 2px 4px; font-size: 8px; }
+    .app-header { padding: 6px 10px; }
+    .content { padding: 8px; }
+  }
+
+
+  .cvs-btn{background:rgba(30,30,40,0.75);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.8);border-radius:5px;padding:3px 8px;font-size:13px;cursor:pointer;}
+  .cvs-btn:hover{background:rgba(60,60,80,0.9);}
+  .cvs-label{font-size:9px;color:rgba(255,255,255,0.55);display:flex;align-items:center;gap:3px;letter-spacing:0.04em;text-transform:uppercase;}
+  [data-theme="light"] .cvs-btn{background:rgba(255,255,255,0.85);border-color:rgba(0,0,0,0.15);color:#333;}
+  [data-theme="light"] .cvs-label{color:rgba(0,0,0,0.5);}
+
+</style>
+</head>
+<body>
+
+<!-- APP HEADER -->
+<header class="app-header">
+  <div class="app-logo">
+    <span class="logo-icon">🔬</span>
+    Fontoscopy
+    <span class="logo-version">v9</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:11px;font-family:var(--mono);color:var(--text3)" id="headerFontName">No font loaded</span>
+    <div style="display:flex;gap:4px;align-items:center">
+      <span style="font-size:10px;color:var(--text3);margin-right:2px">Theme:</span>
+      <button class="thm-btn active" id="thmDefault" onclick="setTheme('default')" title="Default">Dark</button>
+      <button class="thm-btn" id="thmScifi"   onclick="setTheme('scifi')"   title="Sci-Fi">SciFi</button>
+      <button class="thm-btn" id="thmCyber"   onclick="setTheme('cyber')"   title="Cyberpunk">Cyber</button>
+      <button class="thm-btn" id="thmMatrix"  onclick="setTheme('matrix')"  title="Matrix">Matrix</button>
+      <button class="thm-btn" id="thmLight"   onclick="setTheme('light')"   title="Light">Light</button>
+      <button class="thm-btn" id="thmRetro"   onclick="setTheme('retro')"   title="Retro Terminal">Retro</button>
+      <button class="thm-btn" id="thmAurora"  onclick="setTheme('aurora')"  title="Aurora Borealis">Aurora</button>
+      <button class="thm-btn" id="thmBlood"   onclick="setTheme('blood')"   title="Blood Red">Blood</button>
+    </div>
+  </div>
+</header>
+
+<!-- TAB NAV -->
+<nav class="tab-nav">
+  <button class="tab-btn active"   id="tabHealth"   onclick="switchTab('health')">🩺 Health</button>
+  <button class="tab-btn disabled" id="tabCoverage" onclick="switchTab('coverage')">🌐 Coverage</button>
+  <button class="tab-btn disabled" id="tabGlyphs"   onclick="switchTab('glyphs')">🔡 Glyphs</button>
+  <button class="tab-btn disabled" id="tabStress"   onclick="switchTab('stress')">⚡ Stress</button>
+  <button class="tab-btn disabled" id="tabShaping"  onclick="switchTab('shaping')">🔀 Shaping</button>
+  <button class="tab-btn disabled" id="tabExport"   onclick="switchTab('export')">🐛 Bugs+Export</button>
+</nav>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ══════════════════ UPLOAD + LOADER ══════════════════ -->
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" />
+    <div class="upload-icon">🔬</div>
+    <h2>Drop a font file to begin</h2>
+    <p>Fontoscopy inspects structure, coverage, shaping, and OpenType integrity</p>
+    <div class="ext-badges">
+      <span class="ext-badge">.ttf</span>
+      <span class="ext-badge">.otf</span>
+      <span class="ext-badge">.woff</span>
+      <span class="ext-badge">.woff2</span>
+    </div>
+  </div>
+
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <div class="loader-text" id="loaderText">Loading font…</div>
+  </div>
+
+  <!-- ══════════════════ TAB: HEALTH REPORT ══════════════════ -->
+  <div class="tab-pane active" id="paneHealth" style="display:none">
+
+    <div class="font-header">
+      <div class="font-name-block">
+        <div class="fname" id="hFontName">—</div>
+        <div class="fmeta" id="hFontMeta">—</div>
+      </div>
+      <div class="font-stats">
+        <div class="stat-item"><div class="val" id="hGlyphs">—</div><div class="lbl">Glyphs</div></div>
+        <div class="stat-item"><div class="val" id="hUnicode">—</div><div class="lbl">Codepoints</div></div>
+        <div class="stat-item"><div class="val" id="hGSUB">—</div><div class="lbl">GSUB</div></div>
+        <div class="stat-item"><div class="val" id="hGPOS">—</div><div class="lbl">GPOS</div></div>
+        <div class="stat-item"><div class="val" id="hAxes">—</div><div class="lbl">Var axes</div></div>
+      </div>
+    </div>
+
+    <div class="overall-card">
+      <div class="overall-ring">
+        <svg width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(123,110,246,0.12)" stroke-width="7"/>
+          <circle cx="45" cy="45" r="38" fill="none" stroke="#7b6ef6" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76"
+            id="ringCircle" style="transition:stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)"/>
+        </svg>
+        <div class="ring-val" id="ringVal">0</div>
+      </div>
+      <div class="overall-info">
+        <div class="grade-badge" id="overallGrade">—</div>
+        <div class="verdict" id="overallVerdict">Awaiting analysis…</div>
+      </div>
+      <div class="overall-actions">
+        <button class="btn btn-primary" onclick="switchTab('export')">⬇ Export Report</button>
+        <button class="btn btn-ghost" onclick="resetApp()">✕ New Font</button>
+      </div>
+    </div>
+
+    <div class="score-grid">
+      <div class="score-card" id="cardCoverage"><div class="sc-label">Coverage</div><div class="sc-number" id="scoreCoverage">0</div><div class="sc-grade" id="gradeCoverage">—</div><div class="sc-bar"><div class="sc-bar-fill" id="barCoverage"></div></div></div>
+      <div class="score-card" id="cardOT"><div class="sc-label">OpenType</div><div class="sc-number" id="scoreOT">0</div><div class="sc-grade" id="gradeOT">—</div><div class="sc-bar"><div class="sc-bar-fill" id="barOT"></div></div></div>
+      <div class="score-card" id="cardMetrics"><div class="sc-label">Metrics</div><div class="sc-number" id="scoreMetrics">0</div><div class="sc-grade" id="gradeMetrics">—</div><div class="sc-bar"><div class="sc-bar-fill" id="barMetrics"></div></div></div>
+      <div class="score-card" id="cardShaping"><div class="sc-label">Shaping</div><div class="sc-number" id="scoreShaping">0</div><div class="sc-grade" id="gradeShaping">—</div><div class="sc-bar"><div class="sc-bar-fill" id="barShaping"></div></div></div>
+    </div>
+
+    <!-- Essential Glyphs -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secMissing','chevMissing')">
+        <div class="section-title">🔍 Essential Glyph Check <span class="section-badge" id="badgeMissing">—</span></div>
+        <span class="chevron" id="chevMissing">▾</span>
+      </div>
+      <div class="section-body" id="secMissing"><div class="cp-grid" id="cpGrid"></div></div>
+    </div>
+
+    <!-- OT Integrity -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secOT','chevOT')">
+        <div class="section-title">⚙️ OpenType Integrity <span class="section-badge" id="badgeOT">—</span></div>
+        <span class="chevron" id="chevOT">▾</span>
+      </div>
+      <div class="section-body" id="secOT"><ul class="issue-list" id="otIssueList"></ul></div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secMet','chevMet')">
+        <div class="section-title">📐 Metrics &amp; Alignment <span class="section-badge" id="badgeMet">—</span></div>
+        <span class="chevron" id="chevMet">▾</span>
+      </div>
+      <div class="section-body" id="secMet"><ul class="issue-list" id="metIssueList"></ul></div>
+    </div>
+
+    <!-- OT Features -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secFeatures','chevFeatures')">
+        <div class="section-title">🧬 OpenType Features <span class="section-badge" id="badgeFeatures">—</span></div>
+        <span class="chevron" id="chevFeatures">▾</span>
+      </div>
+      <div class="section-body" id="secFeatures">
+        <table class="ot-table">
+          <thead><tr><th>Tag</th><th>Type</th><th>Script</th><th>Lookups</th><th>Status</th></tr></thead>
+          <tbody id="featTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="resetApp()">✕ Load another font</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ TAB: COVERAGE MATRIX ══════════════════ -->
+  <div class="tab-pane" id="paneCoverage" style="display:none">
+
+    <!-- Summary cards -->
+    <div class="cov-summary-grid" id="covSummaryGrid"></div>
+
+    <!-- Heatmap -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secHeatmap','chevHeatmap')">
+        <div class="section-title">🗺️ Script Heatmap <span class="section-badge badge-info" id="badgeHeatmap">—</span></div>
+        <span class="chevron open" id="chevHeatmap">▾</span>
+      </div>
+      <div class="section-body" id="secHeatmap">
+        <div class="heatmap-legend">
+          <span class="legend-label">Coverage:</span>
+          <div class="legend-swatch" style="background:#1a3a2a"></div><span class="legend-text">0%</span>
+          <div class="legend-swatch" style="background:#1d5c3a"></div><span class="legend-text">25%</span>
+          <div class="legend-swatch" style="background:#1f7a48"></div><span class="legend-text">50%</span>
+          <div class="legend-swatch" style="background:#24a05e"></div><span class="legend-text">75%</span>
+          <div class="legend-swatch" style="background:#34c98a"></div><span class="legend-text">100%</span>
+          <div class="legend-swatch" style="background:#2a1a1a;border:1px solid #444"></div><span class="legend-text">N/A</span>
+        </div>
+        <div class="heatmap-wrap">
+          <div id="heatmapGrid"></div>
+        </div>
+        <div class="cov-detail-panel" id="covDetailPanel">
+          <div class="cov-detail-title" id="covDetailTitle">—</div>
+          <div class="cov-detail-grid" id="covDetailGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Language support list -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secLangs','chevLangs')">
+        <div class="section-title">🗣️ Language Support <span class="section-badge" id="badgeLangs">—</span></div>
+        <span class="chevron open" id="chevLangs">▾</span>
+      </div>
+      <div class="section-body" id="secLangs">
+        <div class="lang-list" id="langList"></div>
+      </div>
+    </div>
+
+    <!-- Detailed coverage table -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secCovTable','chevCovTable')">
+        <div class="section-title">📊 Detailed Coverage Table <span class="section-badge badge-info" id="badgeCovTable">—</span></div>
+        <span class="chevron open" id="chevCovTable">▾</span>
+      </div>
+      <div class="section-body" id="secCovTable">
+        <table class="cov-table">
+          <thead><tr><th>Script</th><th>Range</th><th>Covered</th><th>Total</th><th>Coverage</th><th>Status</th></tr></thead>
+          <tbody id="covTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════ PLACEHOLDER TABS ══════════════════ -->
+  <!-- GLYPH BROWSER TAB -->
+  <div class="tab-pane" id="paneGlyphs" style="display:none">
+
+    <!-- Top controls row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:3px">&#128289; Glyph Browser</div>
+        <div style="font-size:12px;color:var(--text2)">All glyphs including uncoded — search, filter, inspect outlines</div>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+        <input id="glyphSearch" type="text" placeholder="U+, name, char..."
+          style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 11px;font-size:12px;font-family:var(--mono);outline:none;width:160px"
+          oninput="filterGlyphs()">
+        <select id="glyphScriptFilter" onchange="filterGlyphs()"
+          style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 9px;font-size:12px;outline:none">
+          <option value="all">All Scripts</option>
+          <option value="coded">Coded only</option>
+          <option value="uncoded">Uncoded only</option>
+          <option value="Latin">Latin</option>
+          <option value="Bengali">Bengali</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Devanagari">Devanagari</option>
+          <option value="Greek">Greek</option>
+          <option value="Cyrillic">Cyrillic</option>
+        </select>
+        <select id="glyphSizeSelect" onchange="setGlyphCellSz(this.value)"
+          style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 9px;font-size:12px;outline:none">
+          <option value="36">Small</option>
+          <option value="52" selected>Medium</option>
+          <option value="72">Large</option>
+          <option value="96">XL</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--text2);font-family:var(--mono)">
+      <span>Total glyphs: <span id="gbTotal" style="color:var(--accent)">-</span></span>
+      <span>Coded: <span id="gbCoded" style="color:var(--green)">-</span></span>
+      <span>Uncoded: <span id="gbUncoded" style="color:var(--yellow)">-</span></span>
+      <span>Showing: <span id="gbFiltered" style="color:var(--accent)">-</span></span>
+      <span>Page: <span id="gbPageInfo" style="color:var(--text3)">1</span></span>
+    </div>
+
+    <!-- Grid -->
+    <div id="glyphGrid" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;min-height:80px"></div>
+    <div id="glyphPagination" style="display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:20px"></div>
+
+    <!-- Inspector panel -->
+    <div id="glyphDetailPanel" style="display:none">
+      <div class="section">
+        <div class="section-header" style="cursor:default">
+          <div class="section-title" id="gdTitle">Glyph Inspector</div>
+          <button class="btn btn-ghost" style="font-size:11px;padding:3px 10px" onclick="closeGlyphDetail()">Close</button>
+        </div>
+        <div class="section-body" style="padding:14px 18px">
+
+          <!-- Top: render + info -->
+          <div style="display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:start;margin-bottom:16px">
+            <div style="text-align:center">
+              <!-- Preview box with bg color picker -->
+              <div style="margin-bottom:8px">
+                <div id="gdRender"
+                  style="font-size:96px;line-height:1.3;padding:14px;border-radius:10px;border:1px solid var(--border);min-height:140px;display:flex;align-items:center;justify-content:center;transition:background 0.2s;background:#f8f8f8;color:#1a1a2e"></div>
+              </div>
+              <!-- Size previews -->
+              <div id="gdSizes" style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap"></div>
+            </div>
+
+            <!-- Info table -->
+            <table class="ot-table"><tbody id="gdTable"></tbody></table>
+          </div>
+
+          <!-- Matrices panel -->
+          <div style="margin-bottom:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Glyph Matrices</div>
+              <button class="btn btn-ghost" style="font-size:10px;padding:3px 8px" onclick="toggleSection('secMatrices','chevMatrices')">Toggle</button>
+            </div>
+            <div id="secMatrices">
+              <div id="matricesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px"></div>
+            </div>
+          </div>
+
+          <!-- Outline canvas -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Bezier Outline</div>
+              <!-- Outline mode toggles -->
+              <div style="display:flex;gap:5px;flex-wrap:wrap">
+                <button class="outline-btn active" id="omodeDots"  onclick="toggleOutlineMode('dots')"  title="Control Points">Dots</button>
+                <button class="outline-btn"         id="omodeLines" onclick="toggleOutlineMode('lines')" title="Outline stroke">Lines</button>
+                <button class="outline-btn active"  id="omodeFill"  onclick="toggleOutlineMode('fill')"  title="Filled shape">Fill</button>
+                <button class="outline-btn"         id="omodeDir"   onclick="toggleOutlineMode('dir')"   title="Direction arrows">Direction</button>
+              </div>
+            </div>
+            <!-- Canvas with zoom/pan wrapper -->
+            <div id="canvasWrap" style="position:relative;overflow:hidden;border-radius:10px;border:1px solid var(--border);background:var(--bg3);touch-action:none;cursor:grab"
+              onwheel="zoomCanvas(event)" onmousedown="startPan(event)" onmousemove="doPan(event)" onmouseup="endPan()" onmouseleave="endPan()"
+              ontouchstart="startTouch(event)" ontouchmove="doTouch(event)" ontouchend="endTouch()">
+              <canvas id="glyphCanvas" width="600" height="260" style="display:block;width:100%;transition:none"></canvas>
+              <!-- Canvas controls -->
+              <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 8px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;background:linear-gradient(transparent,rgba(0,0,0,0.2));border-radius:0 0 10px 10px">
+                <button onclick="adjustZoom(1.3)"  class="cvs-btn">+</button>
+                <button onclick="adjustZoom(0.77)" class="cvs-btn">&#x2212;</button>
+                <button onclick="resetCanvasView()" class="cvs-btn" style="font-size:10px">Reset</button>
+                <div style="width:1px;height:14px;background:rgba(255,255,255,0.15)"></div>
+                <label class="cvs-label"><span>BG</span><input type="color" id="previewBgPicker" value="#f8f8f8" onchange="onBgChange(this.value)" style="width:20px;height:16px;border:none;border-radius:3px;cursor:pointer;padding:0;vertical-align:middle"></label>
+                <label class="cvs-label"><span>Fill</span><input type="color" id="fillColorPicker" value="#7b6ef6" onchange="drawGlyphOutline(gbSel?gbSel.gid:-1)" style="width:20px;height:16px;border:none;border-radius:3px;cursor:pointer;padding:0;vertical-align:middle"></label>
+                <label class="cvs-label"><span>Line</span><input type="color" id="lineColorPicker" value="#5b4fd4" onchange="drawGlyphOutline(gbSel?gbSel.gid:-1)" style="width:20px;height:16px;border:none;border-radius:3px;cursor:pointer;padding:0;vertical-align:middle"></label>
+                <div style="width:1px;height:14px;background:rgba(255,255,255,0.15)"></div>
+                <label class="cvs-label" style="gap:5px"><span>Opacity</span><input type="range" id="fillOpacity" min="5" max="100" value="35" oninput="document.getElementById('opacityVal').textContent=this.value+'%';drawGlyphOutline(gbSel?gbSel.gid:-1)" style="width:55px;height:14px;cursor:pointer;accent-color:var(--accent)"><span id="opacityVal">35%</span></label>
+              </div>
+                <label style="font-size:9px;color:var(--text3);display:flex;align-items:center;gap:3px">
+                  <span>bg</span>
+                  <input type="color" id="previewBgPicker" value="#f8f8f8"
+                    onchange="var r=document.getElementById('gdRender');if(r){r.style.background=this.value;r.style.color=isLight(this.value)?'#1a1a2e':'#ffffff';}drawGlyphOutline(gbSel?gbSel.gid:-1);"
+                    style="width:20px;height:16px;border:none;border-radius:3px;cursor:pointer;padding:0">
+                </label>
+              </div>
+              <!-- Coords display -->
+              <div id="canvasCoords" style="position:absolute;top:8px;left:8px;font-size:10px;font-family:var(--mono);color:var(--text3);pointer-events:none"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TAB: STRESS TESTS CHUNK 3 ══════════════ -->
+  <div class="tab-pane" id="paneStress" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:4px">⚡ Script Stress Tests</div>
+        <div style="font-size:12px;color:var(--text2)">Renders complex shaping sequences — visual failures reveal font problems</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="runAllStress()">▶ Run All Tests</button>
+        <button class="btn btn-ghost" onclick="resetStress()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="overall-card" style="margin-bottom:20px;padding:18px 24px">
+      <div style="flex:1">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:6px">Stress Test Score</div>
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span style="font-size:32px;font-weight:800;font-family:var(--mono);color:var(--accent)" id="stressScore">—</span>
+          <span style="font-size:13px;color:var(--text2)" id="stressVerdict">Run tests to see results</span>
+        </div>
+        <div style="height:4px;background:var(--bg4);border-radius:2px;margin-top:10px">
+          <div id="stressScoreBar" style="height:100%;width:0%;border-radius:2px;background:var(--accent);transition:width 1s ease"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div class="stat-item"><div class="val" id="stressPass" style="color:var(--green)">—</div><div class="lbl">Pass</div></div>
+        <div class="stat-item"><div class="val" id="stressWarn" style="color:var(--yellow)">—</div><div class="lbl">Warn</div></div>
+        <div class="stat-item"><div class="val" id="stressFail" style="color:var(--red)">—</div><div class="lbl">Fail</div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secStressBn','chevStressBn')">
+        <div class="section-title">🇧🇩 Bengali Stress Pack <span class="section-badge" id="badgeStressBn">NOT RUN</span></div>
+        <span class="chevron open" id="chevStressBn">▾</span>
+      </div>
+      <div class="section-body" id="secStressBn"><div id="stressGridBn" class="stress-grid"></div></div>
+    </div>
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secStressAr','chevStressAr')">
+        <div class="section-title">🌙 Arabic Stress Pack <span class="section-badge" id="badgeStressAr">NOT RUN</span></div>
+        <span class="chevron open" id="chevStressAr">▾</span>
+      </div>
+      <div class="section-body" id="secStressAr"><div id="stressGridAr" class="stress-grid"></div></div>
+    </div>
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secStressDev','chevStressDev')">
+        <div class="section-title">🕉️ Devanagari Stress Pack <span class="section-badge" id="badgeStressDev">NOT RUN</span></div>
+        <span class="chevron open" id="chevStressDev">▾</span>
+      </div>
+      <div class="section-body" id="secStressDev"><div id="stressGridDev" class="stress-grid"></div></div>
+    </div>
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secStressLat','chevStressLat')">
+        <div class="section-title">🔤 Latin Ligature &amp; OT Pack <span class="section-badge" id="badgeStressLat">NOT RUN</span></div>
+        <span class="chevron open" id="chevStressLat">▾</span>
+      </div>
+      <div class="section-body" id="secStressLat"><div id="stressGridLat" class="stress-grid"></div></div>
+    </div>
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secStressGlob','chevStressGlob')">
+        <div class="section-title">🌍 Global &amp; Bidi Stress Pack <span class="section-badge" id="badgeStressGlob">NOT RUN</span></div>
+        <span class="chevron open" id="chevStressGlob">▾</span>
+      </div>
+      <div class="section-body" id="secStressGlob"><div id="stressGridGlob" class="stress-grid"></div></div>
+    </div>
+    <div class="section">
+      <div class="section-header" onclick="toggleSection('secWaterfall','chevWaterfall')">
+        <div class="section-title">🌊 Size Waterfall <span class="section-badge badge-info">visual check</span></div>
+        <span class="chevron open" id="chevWaterfall">▾</span>
+      </div>
+      <div class="section-body" id="secWaterfall"><div id="waterfallContainer"></div></div>
+    </div>
+  </div>
+  <!-- ══════════════ TAB: SHAPING QA CHUNK 4 ══════════════ -->
+  <div class="tab-pane" id="paneShaping" style="display:none">
+
+    <!-- Header row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:4px">🔀 Shaping QA — Browser Engine Debugger</div>
+        <div style="font-size:12px;color:var(--text2)">Type text → see real browser shaping pipeline · cluster analysis · glyph inspector</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="runShapingAnalysis()">▶ Analyse</button>
+        <button class="btn btn-ghost"   onclick="clearShaping()">✕ Clear</button>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="section-body" style="padding:14px 18px">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-bottom:12px">
+          <textarea id="shapingInput" rows="3"
+            placeholder="Type or paste text here… try: ক্ষ্ম  السلام عليكم  Hello fi fl"
+            style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:18px;font-family:system-ui,sans-serif;resize:vertical;outline:none;width:100%;line-height:1.6"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Quick load:</div>
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="setShapingText('ক্ষ্ম জ্ঞ র্ক ক্ত্র')">Bengali conjuncts</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="setShapingText('السلام عليكم ورحمة الله')">Arabic</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="setShapingText('नमस्ते क्ष ज्ञ')">Devanagari</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="setShapingText('fi fl ffi ffl AV To')">Latin OT</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="setShapingText('Hello مرحبا বাংলা नमस्ते')">Mixed scripts</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rendered preview with font -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="section-header" onclick="toggleSection('secShapePreview','chevShapePreview')">
+        <div class="section-title">👁️ Live Render Preview <span class="section-badge badge-info" id="badgeShapePreview">—</span></div>
+        <span class="chevron open" id="chevShapePreview">▾</span>
+      </div>
+      <div class="section-body" id="secShapePreview">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px" id="previewPanels">
+          <div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">🟦 With loaded font</div>
+            <div id="previewFont"
+              style="font-size:32px;line-height:1.6;min-height:60px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;word-break:break-all;color:var(--text)"></div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">⬜ System fallback</div>
+            <div id="previewSystem"
+              style="font-size:32px;line-height:1.6;min-height:60px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;word-break:break-all;color:var(--text);font-family:system-ui,sans-serif"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+          <label style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px">
+            Font size:
+            <input type="range" id="previewSize" min="12" max="96" value="32" style="width:100px" oninput="updatePreviewSize(this.value)">
+            <span id="previewSizeVal" style="font-family:var(--mono);color:var(--accent);width:32px">32px</span>
+          </label>
+          <label style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px">
+            Direction:
+            <select id="previewDir" onchange="updatePreviewDir()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:2px 8px;font-size:12px">
+              <option value="ltr">LTR</option>
+              <option value="rtl">RTL</option>
+              <option value="auto">Auto</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cluster analysis -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="section-header" onclick="toggleSection('secClusters','chevClusters')">
+        <div class="section-title">🔬 Unicode Cluster Analysis <span class="section-badge" id="badgeClusters">—</span></div>
+        <span class="chevron open" id="chevClusters">▾</span>
+      </div>
+      <div class="section-body" id="secClusters">
+        <div id="clusterGrid" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+    </div>
+
+    <!-- Codepoint inspector table -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="section-header" onclick="toggleSection('secCodepoints','chevCodepoints')">
+        <div class="section-title">📋 Codepoint Inspector <span class="section-badge" id="badgeCodepoints">—</span></div>
+        <span class="chevron open" id="chevCodepoints">▾</span>
+      </div>
+      <div class="section-body" id="secCodepoints">
+        <table class="ot-table" id="cpInspectorTable">
+          <thead><tr>
+            <th>#</th><th>Char</th><th>U+</th><th>Name / Category</th>
+            <th>In Font</th><th>Script</th><th>Bidi</th>
+          </tr></thead>
+          <tbody id="cpInspectorBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OT Feature toggle tester -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="section-header" onclick="toggleSection('secFeatureToggle','chevFeatureToggle')">
+        <div class="section-title">🎛️ OpenType Feature Toggle <span class="section-badge badge-info" id="badgeFeatureToggle">—</span></div>
+        <span class="chevron open" id="chevFeatureToggle">▾</span>
+      </div>
+      <div class="section-body" id="secFeatureToggle">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Toggle features on/off and see live render change above</div>
+        <div id="featureToggleGrid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
+        <div id="featureTogglePreview"
+          style="font-size:28px;min-height:50px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);word-break:break-all;line-height:1.6"></div>
+      </div>
+    </div>
+
+    <!-- Script detection -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="section-header" onclick="toggleSection('secScriptDetect','chevScriptDetect')">
+        <div class="section-title">🌐 Script Detection <span class="section-badge" id="badgeScriptDetect">—</span></div>
+        <span class="chevron open" id="chevScriptDetect">▾</span>
+      </div>
+      <div class="section-body" id="secScriptDetect">
+        <div id="scriptDetectGrid" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+    </div>
+
+    <!-- Glyph relation map -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="section-header" onclick="toggleSection('secGlyphMap','chevGlyphMap')">
+        <div class="section-title">🕸️ GSUB Substitution Chains <span class="section-badge" id="badgeGlyphMap">—</span></div>
+        <span class="chevron open" id="chevGlyphMap">▾</span>
+      </div>
+      <div class="section-body" id="secGlyphMap">
+        <div id="gsub-chain-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="tab-pane" id="paneExport"  style="display:none">
+    <div class="section" style="margin-top:8px">
+      <div class="section-header" style="cursor:default">
+        <div class="section-title">📦 Export QA Report</div>
+      </div>
+      <div class="section-body">
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="exportJSON()">⬇ JSON — CI pipeline</button>
+          <button class="btn btn-ghost"   onclick="exportCSV()">⬇ CSV — QA tracking</button>
+          <button class="btn btn-ghost"   onclick="exportMarkdown()">⬇ Markdown — GitHub issue</button>
+        </div>
+        <div id="exportPreview" style="margin-top:18px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-family:var(--mono);font-size:11px;color:var(--text2);white-space:pre-wrap;max-height:400px;overflow-y:auto;display:none"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- FOOTER -->
+<footer class="app-footer">
+  <div class="credit-line">
+    Fontoscopy &nbsp;·&nbsp; <span>v9SFFCNHKCLD</span> &nbsp;·&nbsp; Release Version: 1.0 &nbsp;·&nbsp; Build: <span>v9</span>
+  </div>
+</footer>
+
+<!-- opentype.js -->
+<script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+<script>
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let fontData    = null;
+let reportData  = null;
+let coveredCPs  = new Set();
+
+// ════════════════════════════════════════════════
+//  DATA: ESSENTIAL CODEPOINTS
+// ════════════════════════════════════════════════
+const ESSENTIAL_CPS = [
+  {cp:0x0020,name:'Space'},{cp:0x00A0,name:'NBSP'},{cp:0x200B,name:'ZWSP'},
+  {cp:0x200C,name:'ZWNJ'},{cp:0x200D,name:'ZWJ'},{cp:0x00AD,name:'Soft Hyphen'},
+  {cp:0x0021,name:'!'},{cp:0x002E,name:'.'},{cp:0x002C,name:','},{cp:0x003F,name:'?'},
+  {cp:0x0030,name:'0'},{cp:0x0041,name:'A'},{cp:0x0061,name:'a'},
+  {cp:0x0023,name:'#'},{cp:0x0040,name:'@'},{cp:0x0025,name:'%'},
+  {cp:0x00A9,name:'©'},{cp:0x00AE,name:'®'},{cp:0x2026,name:'…'},
+  {cp:0x2018,name:'\u2018'},{cp:0x2019,name:'\u2019'},
+  {cp:0x201C,name:'\u201C'},{cp:0x201D,name:'\u201D'},
+  {cp:0x2013,name:'En dash'},{cp:0x2014,name:'Em dash'},
+];
+
+// ════════════════════════════════════════════════
+//  DATA: SCRIPT RANGES (chunk 2 expanded)
+// ════════════════════════════════════════════════
+const SCRIPT_RANGES = [
+  {name:'Basic Latin',     start:0x0020,end:0x007E,weight:3,group:'Latin'},
+  {name:'Latin-1 Suppl.', start:0x00C0,end:0x00FF,weight:2,group:'Latin'},
+  {name:'Latin Extended A',start:0x0100,end:0x017F,weight:1,group:'Latin'},
+  {name:'Latin Extended B',start:0x0180,end:0x024F,weight:1,group:'Latin'},
+  {name:'Bengali',         start:0x0980,end:0x09FF,weight:3,group:'Indic'},
+  {name:'Devanagari',      start:0x0900,end:0x097F,weight:2,group:'Indic'},
+  {name:'Tamil',           start:0x0B80,end:0x0BFF,weight:1,group:'Indic'},
+  {name:'Telugu',          start:0x0C00,end:0x0C7F,weight:1,group:'Indic'},
+  {name:'Malayalam',       start:0x0D00,end:0x0D7F,weight:1,group:'Indic'},
+  {name:'Gujarati',        start:0x0A80,end:0x0AFF,weight:1,group:'Indic'},
+  {name:'Gurmukhi',        start:0x0A00,end:0x0A7F,weight:1,group:'Indic'},
+  {name:'Kannada',         start:0x0C80,end:0x0CFF,weight:1,group:'Indic'},
+  {name:'Odia',            start:0x0B00,end:0x0B7F,weight:1,group:'Indic'},
+  {name:'Sinhala',         start:0x0D80,end:0x0DFF,weight:1,group:'Indic'},
+  {name:'Arabic',          start:0x0600,end:0x06FF,weight:3,group:'RTL'},
+  {name:'Arabic Extended', start:0x0750,end:0x077F,weight:1,group:'RTL'},
+  {name:'Arabic Pres. A',  start:0xFB50,end:0xFDFF,weight:1,group:'RTL'},
+  {name:'Arabic Pres. B',  start:0xFE70,end:0xFEFF,weight:1,group:'RTL'},
+  {name:'Hebrew',          start:0x0590,end:0x05FF,weight:2,group:'RTL'},
+  {name:'Syriac',          start:0x0700,end:0x074F,weight:1,group:'RTL'},
+  {name:'Thaana',          start:0x0780,end:0x07BF,weight:1,group:'RTL'},
+  {name:'Greek',           start:0x0370,end:0x03FF,weight:2,group:'European'},
+  {name:'Cyrillic',        start:0x0400,end:0x04FF,weight:2,group:'European'},
+  {name:'Armenian',        start:0x0530,end:0x058F,weight:1,group:'European'},
+  {name:'Georgian',        start:0x10A0,end:0x10FF,weight:1,group:'European'},
+  {name:'Thai',            start:0x0E00,end:0x0E7F,weight:2,group:'SEA'},
+  {name:'Lao',             start:0x0E80,end:0x0EFF,weight:1,group:'SEA'},
+  {name:'Khmer',           start:0x1780,end:0x17FF,weight:1,group:'SEA'},
+  {name:'Myanmar',         start:0x1000,end:0x109F,weight:1,group:'SEA'},
+  {name:'Tibetan',         start:0x0F00,end:0x0FFF,weight:1,group:'EA'},
+  {name:'CJK Unified',     start:0x4E00,end:0x9FFF,weight:1,group:'EA'},
+  {name:'CJK Extension A', start:0x3400,end:0x4DBF,weight:1,group:'EA'},
+  {name:'Hangul',          start:0xAC00,end:0xD7AF,weight:1,group:'EA'},
+  {name:'Hiragana',        start:0x3040,end:0x309F,weight:1,group:'EA'},
+  {name:'Katakana',        start:0x30A0,end:0x30FF,weight:1,group:'EA'},
+  {name:'Ethiopic',        start:0x1200,end:0x137F,weight:1,group:'African'},
+  {name:'Ethiopic Suppl.', start:0x1380,end:0x139F,weight:1,group:'African'},
+  {name:'N\'Ko',           start:0x07C0,end:0x07FF,weight:1,group:'African'},
+  {name:'Mongolian',       start:0x1800,end:0x18AF,weight:1,group:'Other'},
+  {name:'Symbols',         start:0x2600,end:0x26FF,weight:1,group:'Other'},
+  {name:'Dingbats',        start:0x2700,end:0x27BF,weight:1,group:'Other'},
+];
+
+// Language → required codepoint ranges
+const LANGUAGE_COVERAGE = [
+  {lang:'English',    scripts:['Basic Latin'],                  minPct:90},
+  {lang:'Bengali',    scripts:['Bengali'],                      minPct:80},
+  {lang:'Hindi',      scripts:['Devanagari'],                   minPct:80},
+  {lang:'Arabic',     scripts:['Arabic'],                       minPct:75},
+  {lang:'Urdu',       scripts:['Arabic'],                       minPct:75},
+  {lang:'Persian',    scripts:['Arabic'],                       minPct:70},
+  {lang:'Hebrew',     scripts:['Hebrew'],                       minPct:80},
+  {lang:'Thai',       scripts:['Thai'],                         minPct:80},
+  {lang:'Greek',      scripts:['Greek'],                        minPct:80},
+  {lang:'Russian',    scripts:['Cyrillic'],                     minPct:80},
+  {lang:'Tamil',      scripts:['Tamil'],                        minPct:75},
+  {lang:'Telugu',     scripts:['Telugu'],                       minPct:75},
+  {lang:'Malayalam',  scripts:['Malayalam'],                    minPct:75},
+  {lang:'Kannada',    scripts:['Kannada'],                      minPct:75},
+  {lang:'Gujarati',   scripts:['Gujarati'],                     minPct:75},
+  {lang:'Punjabi',    scripts:['Gurmukhi'],                     minPct:75},
+  {lang:'Odia',       scripts:['Odia'],                         minPct:75},
+  {lang:'Sinhala',    scripts:['Sinhala'],                      minPct:75},
+  {lang:'Khmer',      scripts:['Khmer'],                        minPct:75},
+  {lang:'Myanmar',    scripts:['Myanmar'],                      minPct:75},
+  {lang:'Georgian',   scripts:['Georgian'],                     minPct:75},
+  {lang:'Armenian',   scripts:['Armenian'],                     minPct:75},
+  {lang:'Japanese',   scripts:['Hiragana','Katakana'],          minPct:75},
+  {lang:'Korean',     scripts:['Hangul'],                       minPct:60},
+  {lang:'Chinese',    scripts:['CJK Unified'],                  minPct:30},
+  {lang:'Amharic',    scripts:['Ethiopic'],                     minPct:70},
+  {lang:'Tibetan',    scripts:['Tibetan'],                      minPct:70},
+  {lang:'Mongolian',  scripts:['Mongolian'],                    minPct:60},
+];
+
+const CRITICAL_TAGS = {
+  complex:['abvs','blwf','pref','pres','pstf','rphf','cjct','mkmk','mark','locl','akhn','half','haln','nukt','vatu'],
+  latin:  ['kern','liga','calt','case','frac','sups','subs','onum','lnum','tnum'],
+  arabic: ['init','medi','fina','isol','cswh','mset','stch'],
+};
+
+// ════════════════════════════════════════════════
+//  TAB SWITCHING
+// ════════════════════════════════════════════════
+const TABS = ['health','coverage','glyphs','stress','shaping','export'];
+function switchTab(name) {
+  if (!fontData && name !== 'health') return;
+  TABS.forEach(t => {
+    document.getElementById('tab'+cap(t)).classList.toggle('active', t===name);
+    const pane = document.getElementById('pane'+cap(t));
+    if (pane) pane.style.display = t===name ? 'block' : 'none';
+  });
+}
+function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1); }
+
+// ════════════════════════════════════════════════
+//  DRAG & DROP / FILE INPUT
+// ════════════════════════════════════════════════
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); handleFile(e.dataTransfer.files[0]); });
+document.getElementById('fontFile').addEventListener('change', e => handleFile(e.target.files[0]));
+
+function handleFile(file) {
+  if (!file) return;
+  showLoader('Reading font file…');
+  const reader = new FileReader();
+  reader.onload = e => {
+    setTimeout(() => {
+      try {
+        updateLoader('Parsing OpenType tables…');
+        const font = opentype.parse(e.target.result);
+        fontData = font;
+        // Load font into browser rendering engine so glyph cells render correctly
+        const fontName = (function(){
+          var n=font.names;
+          var rec=n['fontFamily']||n[1];
+          if(rec){var k=Object.keys(rec);if(k.length)return rec[k[0]];}
+          return file.name.replace(/\.[^.]+$/,'');
+        })();
+        try {
+          var ff = new FontFace(fontName, e.target.result);
+          ff.load().then(function(loaded){
+            document.fonts.add(loaded);
+            window._loadedFontName = fontName;
+          }).catch(function(){
+            window._loadedFontName = fontName;
+          });
+        } catch(e2) { window._loadedFontName = fontName; }
+        updateLoader('Running health analysis\u2026');
+        setTimeout(() => analyzeFont(font, file.name), 80);
+      } catch(err) {
+        hideLoader();
+        zone.style.display = '';
+        alert('Could not parse font: ' + err.message + '\n\nTTF/OTF work best. WOFF2 has limited support.');
+      }
+    }, 50);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showLoader(msg) {
+  zone.style.display = 'none';
+  document.getElementById('loader').classList.add('visible');
+  document.getElementById('loaderText').textContent = msg;
+}
+function updateLoader(msg) { document.getElementById('loaderText').textContent = msg; }
+function hideLoader() { document.getElementById('loader').classList.remove('visible'); }
+
+// ════════════════════════════════════════════════
+//  ANALYSIS
+// ════════════════════════════════════════════════
+function analyzeFont(font, filename) {
+  const report = {};
+  const names = font.names;
+  const getName = id => { const r = names[id]; if(!r) return null; const k=Object.keys(r); return k.length?r[k[0]]:null; };
+
+  report.familyName   = getName('fontFamily')||getName(1)||filename.replace(/\.[^.]+$/,'');
+  report.version      = getName('version')||getName(5)||'\u2014';
+  report.designer     = getName('designer')||getName(9)||'\u2014';
+  report.manufacturer = getName('manufacturer')||getName(8)||'\u2014';
+  report.glyphCount   = font.glyphs.length;
+  report.unitsPerEm   = font.unitsPerEm;
+  report.filename     = filename;
+
+  const cmap = font.tables.cmap;
+  coveredCPs = new Set();
+  if (cmap && cmap.glyphIndexMap) {
+    Object.keys(cmap.glyphIndexMap).forEach(cp => coveredCPs.add(parseInt(cp)));
+  }
+  report.unicodeCount = coveredCPs.size;
+
+  const gsubFeatures = extractFeatures(font.tables.gsub);
+  const gposFeatures = extractFeatures(font.tables.gpos);
+  report.gsubCount    = gsubFeatures.length;
+  report.gposCount    = gposFeatures.length;
+  report.gsubFeatures = gsubFeatures;
+  report.gposFeatures = gposFeatures;
+
+  const fvar = font.tables.fvar;
+  report.varAxes = fvar ? fvar.axes.length : 0;
+
+  report.essentialCheck   = ESSENTIAL_CPS.map(item => ({...item, present: coveredCPs.has(item.cp)}));
+  report.missingEssentialCount = report.essentialCheck.filter(x=>!x.present).length;
+  report.scriptCoverage   = computeScriptCoverage(coveredCPs);
+  report.metricsIssues    = checkMetrics(font);
+  report.otIssues         = checkOTIntegrity(font, gsubFeatures, gposFeatures);
+  report.languageSupport  = computeLanguageSupport(report.scriptCoverage);
+  report.scores           = computeScores(report, coveredCPs);
+
+  reportData = report;
+
+  // unlock tabs
+  ['tabCoverage','tabGlyphs','tabStress','tabShaping','tabExport'].forEach(id => {
+    document.getElementById(id).classList.remove('disabled');
+  });
+  // stress runs manually via button
+  document.getElementById('headerFontName').textContent = report.familyName + ' · ' + filename;
+
+  renderHealthTab(report);
+  renderCoverageTab(report);
+  switchTab('health');
+}
+
+function extractFeatures(table) {
+  if (!table) return [];
+  var results = [];
+  var seen = {};
+  // Method 1: featureList
+  if (table.featureList && table.featureList.features) {
+    table.featureList.features.forEach(function(f,i){
+      var key = f.tag+'_'+i;
+      if (!seen[key]) {
+        seen[key]=true;
+        results.push({tag:f.tag, lookups:f.feature.lookupListIndexes||[], index:i, source:'featureList'});
+      }
+    });
+  }
+  // Method 2: scriptList \u2014 scan all scripts+langs for additional feature indices
+  if (table.scriptList && table.scriptList.scripts) {
+    table.scriptList.scripts.forEach(function(sc){
+      var script = sc.script;
+      if (!script) return;
+      // default lang
+      if (script.defaultLangSys && script.defaultLangSys.featureIndexes) {
+        script.defaultLangSys.featureIndexes.forEach(function(fi){
+          if (table.featureList && table.featureList.features && table.featureList.features[fi]) {
+            var f = table.featureList.features[fi];
+            var key = f.tag+'_'+fi;
+            if (!seen[key]) {
+              seen[key]=true;
+              results.push({tag:f.tag, lookups:f.feature.lookupListIndexes||[], index:fi, source:'script:'+sc.tag+':default'});
+            }
+          }
+        });
+      }
+      // lang systems
+      if (script.langSysRecords) {
+        script.langSysRecords.forEach(function(lr){
+          if (lr.langSys && lr.langSys.featureIndexes) {
+            lr.langSys.featureIndexes.forEach(function(fi){
+              if (table.featureList && table.featureList.features && table.featureList.features[fi]) {
+                var f = table.featureList.features[fi];
+                var key = f.tag+'_'+fi+'_'+lr.tag;
+                if (!seen[key]) {
+                  seen[key]=true;
+                  results.push({tag:f.tag, lookups:f.feature.lookupListIndexes||[], index:fi, source:'script:'+sc.tag+':'+lr.tag});
+                }
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+  // Method 3: scan lookup table directly for lookup types
+  if (table.lookupList && table.lookupList.lookups) {
+    table.lookupList.lookups.forEach(function(lk,li){
+      // Add lookup type as synthetic feature if not already represented
+      var synTag = 'lk'+li+'_t'+lk.lookupType;
+      // don't add to main list, but make available for inspection
+    });
+  }
+  return results;
+}
+
+function computeScriptCoverage(cps) {
+  return SCRIPT_RANGES.map(range => {
+    let total=0, covered=0;
+    for (let cp=range.start; cp<=range.end; cp++) { total++; if(cps.has(cp)) covered++; }
+    const pct = total>0 ? Math.round((covered/total)*100) : 0;
+    return {...range, total, covered, pct};
+  }).sort((a,b)=>b.covered-a.covered);
+}
+
+function computeLanguageSupport(scriptCov) {
+  const scriptMap = {};
+  scriptCov.forEach(s => { scriptMap[s.name] = s.pct; });
+  return LANGUAGE_COVERAGE.map(lang => {
+    const pcts = lang.scripts.map(sn => scriptMap[sn]||0);
+    const avgPct = pcts.reduce((a,b)=>a+b,0)/pcts.length;
+    const status = avgPct >= lang.minPct ? 'full' : avgPct >= lang.minPct*0.5 ? 'partial' : 'none';
+    return {...lang, pct: Math.round(avgPct), status};
+  }).sort((a,b) => {
+    const order = {full:0,partial:1,none:2};
+    return order[a.status]-order[b.status] || b.pct-a.pct;
+  });
+}
+
+function checkMetrics(font) {
+  const issues=[];
+  const os2=font.tables.os2, head=font.tables.head, hhea=font.tables.hhea;
+  if (!os2) { issues.push({type:'critical',label:'Missing OS/2 table',detail:'Required for proper rendering on all platforms'}); return issues; }
+  if (!head) { issues.push({type:'critical',label:'Missing head table',detail:'Font is missing a required structural table'}); return issues; }
+  const upm=font.unitsPerEm, asc=os2.sTypoAscender, desc=os2.sTypoDescender;
+  const lineGap=os2.sTypoLineGap, winAsc=os2.usWinAscent;
+  if (asc+Math.abs(desc)>upm*1.2) issues.push({type:'warning',label:'Oversized ascender+descender',detail:`${asc}+${Math.abs(desc)}=${asc+Math.abs(desc)} > UPM×1.2 (${Math.round(upm*1.2)})`});
+  else issues.push({type:'ok',label:'Ascender/Descender ratio OK',detail:`Asc:${asc} Desc:${desc} UPM:${upm}`});
+  if (lineGap<0) issues.push({type:'warning',label:'Negative line gap',detail:`sTypoLineGap=${lineGap}`});
+  else issues.push({type:'ok',label:'Line gap OK',detail:`sTypoLineGap=${lineGap}`});
+  if (winAsc<asc) issues.push({type:'warning',label:'Win Ascent < Typo Ascent',detail:`usWinAscent(${winAsc}) < sTypoAscender(${asc})`});
+  else issues.push({type:'ok',label:'Win Ascent OK',detail:`usWinAscent:${winAsc}`});
+  if (hhea&&Math.abs(hhea.ascender-asc)>upm*0.15) issues.push({type:'warning',label:'hhea/OS2 ascender mismatch',detail:`hhea:${hhea.ascender} OS/2:${asc}`});
+  else if (hhea) issues.push({type:'ok',label:'hhea/OS2 consistent',detail:`hhea:${hhea.ascender}`});
+  const xH=os2.sxHeight, capH=os2.sCapHeight;
+  if (xH&&capH) { const r=xH/capH; if(r<0.5||r>0.85) issues.push({type:'info',label:'Unusual x-height/cap-height ratio',detail:`${xH}/${capH}=${r.toFixed(2)}`}); else issues.push({type:'ok',label:'x-height/cap-height ratio OK',detail:`${xH}/${capH}=${r.toFixed(2)}`}); }
+  return issues;
+}
+
+function checkOTIntegrity(font, gsubF, gposF) {
+  const issues=[];
+  const allTags=[...gsubF,...gposF].map(f=>f.tag);
+  const hasCombining = [...coveredCPs].some(cp=>(cp>=0x0300&&cp<=0x036F)||(cp>=0x0980&&cp<=0x09FF)||(cp>=0x0600&&cp<=0x06FF));
+  if (hasCombining) {
+    if (!allTags.includes('mark')) issues.push({type:'critical',label:'Missing mark feature',detail:'Font has combining marks but no GPOS mark positioning'});
+    else issues.push({type:'ok',label:'mark feature present',detail:'GPOS mark positioning found'});
+    if (!allTags.includes('mkmk')) issues.push({type:'warning',label:'No mkmk (mark-to-mark)',detail:'Stacked diacritics may not position correctly'});
+    else issues.push({type:'ok',label:'mkmk feature present',detail:'Mark-to-mark positioning available'});
+  }
+  const hasBengali=[...coveredCPs].some(cp=>cp>=0x0980&&cp<=0x09FF);
+  if (hasBengali) {
+    const need=['abvs','blwf','half','haln','nukt','rphf','cjct','pstf'];
+    need.forEach(t=>{ if(!allTags.includes(t)) issues.push({type:'warning',label:`Bengali: missing '${t}'`,detail:'Required for correct conjunct rendering'}); });
+    if (!need.some(t=>!allTags.includes(t))) issues.push({type:'ok',label:'Bengali OT features complete',detail:'All required Bangla shaping tags found'});
+  }
+  const hasArabic=[...coveredCPs].some(cp=>cp>=0x0600&&cp<=0x06FF);
+  if (hasArabic) {
+    const need=['init','medi','fina','isol','calt','liga','rlig'];
+    need.forEach(t=>{ if(!allTags.includes(t)) issues.push({type:'warning',label:`Arabic: missing '${t}'`,detail:'Required for Arabic contextual forms'}); });
+    if (!need.some(t=>!allTags.includes(t))) issues.push({type:'ok',label:'Arabic OT features complete',detail:'All required Arabic shaping tags found'});
+  }
+  if (!allTags.includes('kern')) issues.push({type:'info',label:'No kern feature',detail:'No OpenType kerning \u2014 spacing may be loose'});
+  else issues.push({type:'ok',label:'Kerning present',detail:'kern feature found'});
+  if (!allTags.includes('liga')) issues.push({type:'info',label:'No liga feature',detail:'No standard ligatures (fi, fl, ff…)'});
+  else issues.push({type:'ok',label:'Standard ligatures present',detail:'liga feature found'});
+  return issues;
+}
+
+function computeScores(report, cps) {
+  let cwSum=0,cwTotal=0;
+  report.scriptCoverage.forEach(s=>{ if(s.total>10){cwSum+=s.pct*s.weight; cwTotal+=100*s.weight;} });
+  const coverageScore = cwTotal>0 ? Math.min(100,Math.round(cwSum/cwTotal*100)) : 50;
+  const otCrit=report.otIssues.filter(i=>i.type==='critical').length;
+  const otWarn=report.otIssues.filter(i=>i.type==='warning').length;
+  const otScore=Math.max(0,100-otCrit*20-otWarn*5);
+  const mCrit=report.metricsIssues.filter(i=>i.type==='critical').length;
+  const mWarn=report.metricsIssues.filter(i=>i.type==='warning').length;
+  const metScore=Math.max(0,100-mCrit*25-mWarn*10);
+  let shapingScore=75;
+  if(report.gsubCount>5)shapingScore+=10;
+  if(report.gposCount>2)shapingScore+=10;
+  if(report.missingEssentialCount===0)shapingScore+=5;
+  if(report.missingEssentialCount>3)shapingScore-=15;
+  shapingScore=Math.min(100,Math.max(0,shapingScore));
+  const overall=Math.round(coverageScore*0.3+otScore*0.3+metScore*0.2+shapingScore*0.2);
+  const grade=overall>=90?'A':overall>=80?'B':overall>=70?'C':overall>=60?'D':'F';
+  return {coverage:coverageScore,ot:otScore,metrics:metScore,shaping:shapingScore,overall,grade};
+}
+
+// ════════════════════════════════════════════════
+//  RENDER: HEALTH TAB
+// ════════════════════════════════════════════════
+function renderHealthTab(report) {
+  hideLoader();
+  document.getElementById('hFontName').textContent = report.familyName;
+  document.getElementById('hFontMeta').textContent = `${report.filename} · v${report.version} · ${report.unitsPerEm} UPM`;
+  document.getElementById('hGlyphs').textContent   = report.glyphCount.toLocaleString();
+  document.getElementById('hUnicode').textContent  = report.unicodeCount.toLocaleString();
+  document.getElementById('hGSUB').textContent     = report.gsubCount;
+  document.getElementById('hGPOS').textContent     = report.gposCount;
+  document.getElementById('hAxes').textContent     = report.varAxes;
+
+  setScoreCard('cardCoverage','scoreCoverage','gradeCoverage','barCoverage',report.scores.coverage);
+  setScoreCard('cardOT',      'scoreOT',      'gradeOT',      'barOT',      report.scores.ot);
+  setScoreCard('cardMetrics', 'scoreMetrics', 'gradeMetrics', 'barMetrics', report.scores.metrics);
+  setScoreCard('cardShaping', 'scoreShaping', 'gradeShaping', 'barShaping', report.scores.shaping);
+
+  const s=report.scores.overall;
+  const offset=238.76-(s/100)*238.76;
+  setTimeout(()=>{ document.getElementById('ringCircle').style.strokeDashoffset=offset; animateNumber('ringVal',0,s,1200); },100);
+  document.getElementById('overallGrade').textContent=report.scores.grade;
+  const verdicts={A:'✅ Excellent \u2014 font is healthy and ready for production',B:'👍 Good \u2014 minor issues, suitable for most use cases',C:'⚠️ Fair \u2014 several issues found, review before release',D:'❌ Poor \u2014 significant problems detected',F:'🚫 Critical \u2014 font has serious structural issues'};
+  document.getElementById('overallVerdict').textContent=verdicts[report.scores.grade];
+
+  const cpGrid=document.getElementById('cpGrid');
+  cpGrid.innerHTML='';
+  const missing=report.essentialCheck.filter(x=>!x.present);
+  report.essentialCheck.forEach(item=>{
+    const tag=document.createElement('span');
+    tag.className='cp-tag '+(item.present?'present':'missing');
+    tag.textContent=(item.present?'✓ ':'✗ ')+item.name+' U+'+item.cp.toString(16).toUpperCase().padStart(4,'0');
+    cpGrid.appendChild(tag);
+  });
+  const bM=document.getElementById('badgeMissing');
+  if(missing.length===0){bM.className='section-badge badge-ok';bM.textContent='ALL PRESENT';}
+  else if(missing.length<=3){bM.className='section-badge badge-warn';bM.textContent=missing.length+' MISSING';}
+  else{bM.className='section-badge badge-fail';bM.textContent=missing.length+' MISSING';}
+
+  renderIssueList('otIssueList',report.otIssues);
+  setBadgeFromIssues('badgeOT',report.otIssues);
+  renderIssueList('metIssueList',report.metricsIssues);
+  setBadgeFromIssues('badgeMet',report.metricsIssues);
+
+  const ftbody=document.getElementById('featTableBody');
+  ftbody.innerHTML='';
+  const allF=[...report.gsubFeatures.map(f=>({...f,source:'GSUB'})),...report.gposFeatures.map(f=>({...f,source:'GPOS'}))];
+  if(!allF.length){ftbody.innerHTML='<tr><td colspan="5" style="color:var(--text3);text-align:center;padding:16px">No features</td></tr>';}
+  else allF.slice(0,80).forEach(f=>{
+    const sc=CRITICAL_TAGS.complex.includes(f.tag)?'Complex':CRITICAL_TAGS.latin.includes(f.tag)?'Latin':CRITICAL_TAGS.arabic.includes(f.tag)?'Arabic':'General';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="tag-pill">${f.tag}</span></td><td style="color:var(--text2)">${f.source}</td><td style="color:var(--text2)">${sc}</td><td style="color:var(--text2)">${f.lookups.length}</td><td><span class="section-badge badge-ok">Active</span></td>`;
+    ftbody.appendChild(tr);
+  });
+  const bFeat=document.getElementById('badgeFeatures');
+  bFeat.className='section-badge badge-info';
+  bFeat.textContent=allF.length+' features';
+
+  document.getElementById('paneHealth').style.display='block';
+  postAnalyzeHook(report);
+}
+
+// ════════════════════════════════════════════════
+//  RENDER: COVERAGE MATRIX TAB  (CHUNK 2)
+// ════════════════════════════════════════════════
+function renderCoverageTab(report) {
+  // ── Summary Cards ──
+  const sg = document.getElementById('covSummaryGrid');
+  sg.innerHTML = '';
+  const scriptsAbove80 = report.scriptCoverage.filter(s=>s.total>10&&s.pct>=80).length;
+  const scriptsPartial = report.scriptCoverage.filter(s=>s.total>10&&s.pct>0&&s.pct<80).length;
+  const scriptsNone    = report.scriptCoverage.filter(s=>s.total>10&&s.pct===0).length;
+  const langsFull      = report.languageSupport.filter(l=>l.status==='full').length;
+  const langsPartial   = report.languageSupport.filter(l=>l.status==='partial').length;
+
+  const summaries = [
+    {val:scriptsAbove80, label:'Scripts ≥80%', color:'var(--green)'},
+    {val:scriptsPartial, label:'Scripts partial', color:'var(--yellow)'},
+    {val:scriptsNone,    label:'Scripts absent', color:'var(--text3)'},
+    {val:langsFull,      label:'Languages fully supported', color:'var(--green)'},
+    {val:langsPartial,   label:'Languages partial', color:'var(--yellow)'},
+    {val:report.unicodeCount.toLocaleString(), label:'Total codepoints', color:'var(--accent)'},
+  ];
+  summaries.forEach(s=>{
+    const div=document.createElement('div');
+    div.className='cov-sum-card';
+    div.innerHTML=`<div class="csv" style="color:${s.color}">${s.val}</div><div class="csl">${s.label}</div>`;
+    sg.appendChild(div);
+  });
+
+  // ── Heatmap ──
+  const grid = document.getElementById('heatmapGrid');
+  grid.innerHTML = '';
+
+  // Group scripts
+  const groups = {};
+  report.scriptCoverage.forEach(s => {
+    if (s.total < 5) return;
+    const g = s.group || 'Other';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(s);
+  });
+
+  let totalRows = 0;
+  Object.entries(groups).forEach(([groupName, scripts]) => {
+    // Group header
+    const header = document.createElement('div');
+    header.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);padding:10px 0 4px;';
+    header.textContent = groupName;
+    grid.appendChild(header);
+
+    scripts.forEach(s => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:grid;grid-template-columns:130px 1fr 36px;align-items:center;gap:8px;margin-bottom:3px;';
+
+      const nameEl = document.createElement('div');
+      nameEl.style.cssText = 'font-size:11px;color:var(--text2);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+      nameEl.textContent = s.name;
+      nameEl.title = s.name;
+
+      const barWrap = document.createElement('div');
+      barWrap.style.cssText = 'height:22px;border-radius:4px;overflow:hidden;cursor:pointer;position:relative;';
+
+      const color = pctToColor(s.pct, s.covered > 0);
+      const fill = document.createElement('div');
+      fill.style.cssText = `height:100%;width:0%;background:${color};border-radius:4px;transition:width 0.8s ease;`;
+      fill.title = `${s.name}: ${s.pct}% (${s.covered}/${s.total} codepoints)`;
+      barWrap.appendChild(fill);
+
+      // Tooltip overlay
+      const tip = document.createElement('div');
+      tip.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;padding:0 8px;font-size:10px;font-family:var(--mono);color:rgba(255,255,255,0.6);pointer-events:none;';
+      tip.textContent = s.covered > 0 ? `${s.covered}/${s.total}` : 'none';
+      barWrap.appendChild(tip);
+
+      barWrap.addEventListener('click', () => showScriptDetail(s));
+
+      const pctEl = document.createElement('div');
+      pctEl.style.cssText = `font-size:10px;font-family:var(--mono);font-weight:700;color:${color};text-align:right;`;
+      pctEl.textContent = s.pct + '%';
+
+      row.appendChild(nameEl);
+      row.appendChild(barWrap);
+      row.appendChild(pctEl);
+      grid.appendChild(row);
+
+      // Animate bar after brief delay
+      setTimeout(() => { fill.style.width = s.pct + '%'; }, 100 + totalRows * 15);
+      totalRows++;
+    });
+  });
+
+  document.getElementById('badgeHeatmap').textContent = report.scriptCoverage.filter(s=>s.total>5&&s.pct>0).length + ' scripts with data';
+
+  // ── Language Support ──
+  const langList = document.getElementById('langList');
+  langList.innerHTML = '';
+  report.languageSupport.forEach(l => {
+    const tag = document.createElement('span');
+    tag.className = 'lang-tag ' + l.status;
+    tag.title = `${l.pct}% average coverage across required scripts`;
+    tag.textContent = (l.status==='full'?'✓ ':l.status==='partial'?'~ ':'✗ ') + l.lang + ' ' + l.pct + '%';
+    langList.appendChild(tag);
+  });
+  const bL = document.getElementById('badgeLangs');
+  bL.className = 'section-badge badge-info';
+  bL.textContent = langsFull + ' full · ' + langsPartial + ' partial';
+
+  // ── Detailed Table ──
+  const tbody = document.getElementById('covTableBody');
+  tbody.innerHTML = '';
+  report.scriptCoverage.forEach(s => {
+    if (s.total < 5) return;
+    const col = pctToColor(s.pct, s.covered>0);
+    const statusCls = s.pct>=80?'badge-ok':s.pct>=40?'badge-warn':s.covered>0?'badge-fail':'badge-info';
+    const statusTxt = s.covered===0?'Absent':s.pct>=80?'OK':s.pct>=40?'Partial':'Minimal';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--text)">${s.name}</td>
+      <td style="color:var(--text3);font-family:var(--mono);font-size:11px">U+${s.start.toString(16).toUpperCase().padStart(4,'0')}\u2013U+${s.end.toString(16).toUpperCase().padStart(4,'0')}</td>
+      <td style="color:var(--text2)">${s.covered}</td>
+      <td style="color:var(--text3)">${s.total}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="cov-bar-wrap"><div class="cov-bar-fill" style="width:${s.pct}%;background:${col}"></div></div>
+          <span class="cov-pct" style="color:${col}">${s.pct}%</span>
+        </div>
+      </td>
+      <td><span class="section-badge ${statusCls}">${statusTxt}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('badgeCovTable').textContent = report.scriptCoverage.filter(s=>s.total>5).length + ' ranges';
+}
+
+function pctToColor(pct, hasAny) {
+  if (!hasAny || pct === 0) return '#444';
+  if (pct >= 90) return 'var(--green)';
+  if (pct >= 70) return '#24a05e';
+  if (pct >= 40) return 'var(--yellow)';
+  return 'var(--red)';
+}
+
+function showScriptDetail(s) {
+  const panel = document.getElementById('covDetailPanel');
+  const title = document.getElementById('covDetailTitle');
+  const grid  = document.getElementById('covDetailGrid');
+  panel.classList.add('visible');
+  title.innerHTML = `${s.name} <span class="section-badge ${s.pct>=80?'badge-ok':s.pct>=40?'badge-warn':'badge-fail'}">${s.pct}% · ${s.covered}/${s.total}</span>`;
+  grid.innerHTML = '';
+  // Show first 120 codepoints of the range
+  const limit = Math.min(s.start + 120, s.end);
+  for (let cp = s.start; cp <= limit; cp++) {
+    const has = coveredCPs.has(cp);
+    const ch = (cp >= 0x20 && cp < 0xD800) ? String.fromCodePoint(cp) : '·';
+    const div = document.createElement('div');
+    div.className = 'cov-cp-item ' + (has ? 'has' : 'no');
+    div.title = `U+${cp.toString(16).toUpperCase().padStart(4,'0')} ${has?'present':'missing'}`;
+    div.textContent = ch + ' ' + cp.toString(16).toUpperCase().padStart(4,'0');
+    grid.appendChild(div);
+  }
+}
+
+// ════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════
+function setScoreCard(cardId,numId,gradeId,barId,score) {
+  const card=document.getElementById(cardId);
+  card.classList.remove('green','yellow','red','blue');
+  const cls=score>=85?'green':score>=70?'yellow':'red';
+  card.classList.add(cls);
+  const gm={green:'Good shape',yellow:'Needs review',red:'Issues found'};
+  setTimeout(()=>{ animateNumber(numId,0,score,1000); document.getElementById(barId).style.width=score+'%'; },200);
+  document.getElementById(gradeId).textContent=gm[cls];
+}
+
+function renderIssueList(listId,issues) {
+  const list=document.getElementById(listId);
+  list.innerHTML='';
+  if(!issues||!issues.length){list.innerHTML='<li class="empty-state">No issues detected</li>';return;}
+  issues.forEach(issue=>{
+    const li=document.createElement('li');
+    li.className='issue-item '+(issue.type==='critical'?'critical':issue.type==='warning'?'warning':issue.type==='ok'?'ok':'info');
+    li.innerHTML=`<div class="issue-dot"></div><div class="issue-text"><div class="issue-label">${issue.label}</div>${issue.detail?`<div class="issue-detail">${issue.detail}</div>`:''}</div>`;
+    list.appendChild(li);
+  });
+}
+
+function setBadgeFromIssues(badgeId,issues) {
+  const badge=document.getElementById(badgeId);
+  const c=issues.filter(i=>i.type==='critical').length;
+  const w=issues.filter(i=>i.type==='warning').length;
+  if(c>0){badge.className='section-badge badge-fail';badge.textContent=c+' CRITICAL';}
+  else if(w>0){badge.className='section-badge badge-warn';badge.textContent=w+' WARNING';}
+  else{badge.className='section-badge badge-ok';badge.textContent='OK';}
+}
+
+function toggleSection(id, chevId) {
+  const body=document.getElementById(id);
+  const chev=document.getElementById(chevId);
+  if(!body) return;
+  const open=body.style.display!=='none'&&body.style.display!=='';
+  body.style.display=open?'none':'block';
+  if(chev) chev.classList.toggle('open',!open);
+}
+
+function animateNumber(id,from,to,duration) {
+  const el=document.getElementById(id); if(!el) return;
+  const start=performance.now();
+  function update(now){
+    const t=Math.min((now-start)/duration,1);
+    const ease=1-Math.pow(1-t,3);
+    el.textContent=Math.round(from+(to-from)*ease);
+    if(t<1) requestAnimationFrame(update); else el.textContent=to;
+  }
+  requestAnimationFrame(update);
+}
+
+// ════════════════════════════════════════════════
+//  EXPORT
+// ════════════════════════════════════════════════
+function buildExportObj() {
+  if (!reportData) return null;
+  return {
+    fontFamily: reportData.familyName,
+    version: reportData.version,
+    filename: reportData.filename,
+    glyphCount: reportData.glyphCount,
+    unicodeCount: reportData.unicodeCount,
+    scores: reportData.scores,
+    missingEssential: reportData.essentialCheck.filter(x=>!x.present).map(x=>({name:x.name,codepoint:'U+'+x.cp.toString(16).toUpperCase().padStart(4,'0')})),
+    scriptCoverage: reportData.scriptCoverage.map(s=>({script:s.name,pct:s.pct,covered:s.covered,total:s.total})),
+    languageSupport: reportData.languageSupport.map(l=>({language:l.lang,status:l.status,pct:l.pct})),
+    otIssues: reportData.otIssues,
+    metricsIssues: reportData.metricsIssues,
+    build: 'v3 · v9SFFCNHKCLD · Release 1.0',
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function exportJSON() {
+  const out=buildExportObj(); if(!out) return;
+  const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=(reportData.familyName||'fontoscopy')+'-qa-report.json'; a.click();
+  showExportPreview(JSON.stringify(out,null,2));
+}
+
+function exportCSV() {
+  if (!reportData) return;
+  const rows=[['Script','Coverage %','Covered','Total','Status']];
+  reportData.scriptCoverage.forEach(s=>{ if(s.total>5) rows.push([s.name,s.pct,s.covered,s.total,s.pct>=80?'OK':s.pct>=40?'Partial':s.covered>0?'Minimal':'Absent']); });
+  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=(reportData.familyName||'fontoscopy')+'-coverage.csv'; a.click();
+  showExportPreview(csv);
+}
+
+function exportMarkdown() {
+  if (!reportData) return;
+  const r=reportData;
+  let md=`# Fontoscopy QA Report \u2014 ${r.familyName}\n\n`;
+  md+=`**Score:** ${r.scores.overall}/100 (Grade ${r.scores.grade})\n\n`;
+  md+=`| Category | Score |\n|---|---|\n`;
+  md+=`| Coverage | ${r.scores.coverage} |\n| OpenType | ${r.scores.ot} |\n| Metrics | ${r.scores.metrics} |\n| Shaping | ${r.scores.shaping} |\n\n`;
+  md+=`## Language Support\n\n`;
+  r.languageSupport.forEach(l=>{ md+=`- ${l.status==='full'?'✅':l.status==='partial'?'⚠️':'❌'} ${l.lang} (${l.pct}%)\n`; });
+  md+=`\n## Issues\n\n`;
+  r.otIssues.filter(i=>i.type!=='ok').forEach(i=>{ md+=`- **[${i.type.toUpperCase()}]** ${i.label}: ${i.detail||''}\n`; });
+  md+=`\n---\n*Generated by Fontoscopy v3 · v9SFFCNHKCLD · Release 1.0*\n`;
+  const blob=new Blob([md],{type:'text/markdown'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=(r.familyName||'fontoscopy')+'-qa-report.md'; a.click();
+  showExportPreview(md);
+}
+
+function showExportPreview(text) {
+  const el=document.getElementById('exportPreview');
+  el.style.display='block';
+  el.textContent=text.slice(0,3000)+(text.length>3000?'\n…(truncated)':'');
+}
+
+// ════════════════════════════════════════════════
+//  RESET
+// ════════════════════════════════════════════════
+function resetApp() {
+  fontData=null; reportData=null; coveredCPs=new Set();
+  ['paneHealth','paneCoverage','paneStress','paneShaping','paneExport'].forEach(id=>{ document.getElementById(id).style.display='none'; });
+  ['tabCoverage','tabStress','tabShaping','tabExport'].forEach(id=>{ document.getElementById(id).classList.add('disabled'); });
+  document.getElementById('tabHealth').classList.add('active');
+  document.getElementById('uploadZone').style.display='';
+  document.getElementById('fontFile').value='';
+  document.getElementById('headerFontName').textContent='No font loaded';
+  document.getElementById('covDetailPanel').classList.remove('visible');
+  document.getElementById('exportPreview').style.display='none';
+  switchTab('health');
+}
+
+// ════════════════════════════════════════════════
+//  CHUNK 3 \u2014 STRESS TEST ENGINE
+// ════════════════════════════════════════════════
+
+const STRESS_PACKS = {
+  bn: {
+    name: 'Bengali',
+    badge: 'badgeStressBn',
+    grid:  'stressGridBn',
+    tests: [
+      { label:'Hasanta (Virama)',      text:'ক্',          note:'ক + ্ \u2014 virama should suppress vowel',   dir:'ltr' },
+      { label:'Simple Conjunct',       text:'ক্ষ',         note:'ক্ + ষ → conjunct glyph',               dir:'ltr' },
+      { label:'3-Part Conjunct',       text:'ক্ষ্ম',       note:'3-part conjunct stack',                  dir:'ltr' },
+      { label:'Reph',                  text:'র্ক',         note:'র + ্ + ক → reph above',                dir:'ltr' },
+      { label:'Ya-phala',              text:'ক্য',         note:'ক + ্ + য → ya-phala below',            dir:'ltr' },
+      { label:'Ra-phala',              text:'ক্র',         note:'ক + ্ + র → ra-phala below',            dir:'ltr' },
+      { label:'Juktakkhar complex',    text:'জ্ঞ',         note:'জ + ্ + ঞ → complex ligature',          dir:'ltr' },
+      { label:'Tta conjunct',          text:'ট্ট',         note:'ট + ্ + ট stacked',                    dir:'ltr' },
+      { label:'St conjunct',           text:'স্ত',         note:'স + ্ + ত',                             dir:'ltr' },
+      { label:'Kta conjunct',          text:'ক্ত',         note:'ক + ্ + ত',                             dir:'ltr' },
+      { label:'Vowel AA above',        text:'কা',          note:'ক + া \u2014 aa-matra right',               dir:'ltr' },
+      { label:'Vowel I above',         text:'কি',          note:'ক + ি \u2014 i-matra left (reorder)',       dir:'ltr' },
+      { label:'Vowel E above',         text:'কে',          note:'ক + ে \u2014 e-matra left',                 dir:'ltr' },
+      { label:'Vowel OI',              text:'কৈ',          note:'ক + ৈ \u2014 oi compound matra',            dir:'ltr' },
+      { label:'Anusvar + Visarga',     text:'কংকঃ',        note:'anusvara & visarga marks',              dir:'ltr' },
+      { label:'Chandrabindu',          text:'কঁ',          note:'chandrabindu above',                    dir:'ltr' },
+      { label:'ZWJ split conjunct',    text:'ক‍ষ',    note:'ZWJ should prevent conjunct',           dir:'ltr' },
+      { label:'ZWNJ split',            text:'ক‌ষ',    note:'ZWNJ explicit non-joiner',              dir:'ltr' },
+      { label:'Khanda Ta',             text:'ৎ',            note:'khanda ta \u2014 special form',              dir:'ltr' },
+      { label:'Full sentence',         text:'আমার সোনার বাংলা', note:'full word shaping',              dir:'ltr' },
+      { label:'Numerals',              text:'০১২৩৪৫৬৭৮৯', note:'Bengali digit coverage',               dir:'ltr' },
+      { label:'Punctuation',           text:'।॥',           note:'Bengali danda & double danda',          dir:'ltr' },
+    ]
+  },
+  ar: {
+    name: 'Arabic',
+    badge: 'badgeStressAr',
+    grid:  'stressGridAr',
+    tests: [
+      { label:'Lam-Alef ligature',     text:'لا',           note:'mandatory lam+alef ligature',           dir:'rtl' },
+      { label:'Lam-Alef Madda',        text:'لآ',           note:'lam + alef madda',                      dir:'rtl' },
+      { label:'Contextual init form',  text:'بريد',         note:'beh → initial form',                    dir:'rtl' },
+      { label:'Contextual medi form',  text:'مبارك',        note:'medial forms throughout',               dir:'rtl' },
+      { label:'Contextual fina form',  text:'كتاب',         note:'final form on last letter',             dir:'rtl' },
+      { label:'Isolated form',         text:'و',            note:'waw \u2014 isolated only',                   dir:'rtl' },
+      { label:'Kasheeda stretch',      text:'بـريد',        note:'tatweel/kashida extension',             dir:'rtl' },
+      { label:'Tashkeel dense',        text:'مَرْحَبًا',    note:'multiple harakat stacked',              dir:'rtl' },
+      { label:'Shadda',                text:'شَدَّة',        note:'shadda doubling mark',                  dir:'rtl' },
+      { label:'Hamza forms',           text:'أإؤئآء',       note:'all hamza carrier forms',               dir:'rtl' },
+      { label:'Sun letters',           text:'الشمس',        note:'lam assimilation \u2014 sun letter',         dir:'rtl' },
+      { label:'Moon letters',          text:'القمر',        note:'lam stays \u2014 moon letter',               dir:'rtl' },
+      { label:'Mixed RTL+LTR',         text:'مرحبا Hello',  note:'bidi mixed direction',                  dir:'rtl' },
+      { label:'Arabic numerals',       text:'١٢٣٤٥٦٧٨٩٠', note:'Eastern Arabic numerals',               dir:'rtl' },
+      { label:'Full sentence',         text:'السلام عليكم', note:'common greeting, full shaping',         dir:'rtl' },
+      { label:'Quran start',           text:'بِسْمِ اللَّهِ', note:'complex tashkeel + lam-lam-heh',    dir:'rtl' },
+      { label:'Persian text',          text:'فارسی',        note:'Persian-specific forms',                dir:'rtl' },
+      { label:'Urdu text',             text:'اردو',         note:'Urdu-specific forms',                   dir:'rtl' },
+    ]
+  },
+  dev: {
+    name: 'Devanagari',
+    badge: 'badgeStressDev',
+    grid:  'stressGridDev',
+    tests: [
+      { label:'Simple syllable',       text:'क',            note:'ka \u2014 base consonant',                   dir:'ltr' },
+      { label:'With virama',           text:'क्',           note:'ka + virama',                           dir:'ltr' },
+      { label:'Ka-Sha conjunct',       text:'क्ष',          note:'ksha conjunct ligature',                dir:'ltr' },
+      { label:'Jnya conjunct',         text:'ज्ञ',          note:'jnya conjunct ligature',                dir:'ltr' },
+      { label:'Reph',                  text:'र्क',          note:'reph above consonant',                  dir:'ltr' },
+      { label:'Ra below (subscript)',  text:'क्र',          note:'ra subscript form',                     dir:'ltr' },
+      { label:'Nukta',                 text:'क़',            note:'nukta dot below',                       dir:'ltr' },
+      { label:'Anusvara',              text:'कं',            note:'anusvara above',                        dir:'ltr' },
+      { label:'Visarga',               text:'कः',            note:'visarga after vowel',                   dir:'ltr' },
+      { label:'Chandrabindu',          text:'कँ',            note:'chandrabindu above',                    dir:'ltr' },
+      { label:'I vowel reorder',       text:'कि',           note:'i-matra moves to left of consonant',    dir:'ltr' },
+      { label:'Ii vowel',              text:'की',            note:'ii-matra right side',                   dir:'ltr' },
+      { label:'Full word',             text:'नमस्ते',       note:'namaste \u2014 full shaping',                dir:'ltr' },
+      { label:'Numerals',              text:'०१२३४५६७८९',  note:'Devanagari digit coverage',             dir:'ltr' },
+    ]
+  },
+  lat: {
+    name: 'Latin',
+    badge: 'badgeStressLat',
+    grid:  'stressGridLat',
+    tests: [
+      { label:'fi ligature',           text:'fi',           note:'liga: f+i → fi glyph',                  dir:'ltr' },
+      { label:'fl ligature',           text:'fl',           note:'liga: f+l → fl glyph',                  dir:'ltr' },
+      { label:'ff ligature',           text:'ff',           note:'liga: f+f',                             dir:'ltr' },
+      { label:'ffi ligature',          text:'ffi',          note:'liga: f+f+i',                           dir:'ltr' },
+      { label:'ffl ligature',          text:'ffl',          note:'liga: f+f+l',                           dir:'ltr' },
+      { label:'Kerning: AV',           text:'AVAWAT',       note:'kern: A-V, A-W, A-T pairs',             dir:'ltr' },
+      { label:'Kerning: To Wa',        text:'To Wa We',     note:'kern: T-o, W-a, W-e',                  dir:'ltr' },
+      { label:'Small caps',            text:'Hello World',  note:'smcp: small capitals feature',          dir:'ltr' },
+      { label:'Oldstyle nums',         text:'0123456789',   note:'onum: oldstyle numerals',               dir:'ltr' },
+      { label:'Fractions',             text:'1/2 3/4 1/8', note:'frac: fraction feature',                dir:'ltr' },
+      { label:'Superscript',           text:'100m²',        note:'sups: superscript feature',             dir:'ltr' },
+      { label:'Subscript',             text:'H₂O',          note:'subs: subscript feature',               dir:'ltr' },
+      { label:'Diacritics Latin',      text:'àáâãäåæç',    note:'Latin extended diacritics',             dir:'ltr' },
+      { label:'Diacritics extended',   text:'ēěĕėę',       note:'Latin extended-A macrons',              dir:'ltr' },
+      { label:'Punctuation set',       text:'"Hello," she said…', note:'smart quotes & ellipsis',        dir:'ltr' },
+      { label:'Currency symbols',      text:'$ € £ ¥ ₹ ₺', note:'currency symbol coverage',              dir:'ltr' },
+    ]
+  },
+  glob: {
+    name: 'Global',
+    badge: 'badgeStressGlob',
+    grid:  'stressGridGlob',
+    tests: [
+      { label:'Bidi: Arabic+Latin',    text:'Hello مرحبا World', note:'LTR + RTL + LTR mix',             dir:'ltr' },
+      { label:'Bidi: Num in RTL',      text:'السعر 100 دولار',  note:'numbers inside RTL text',          dir:'rtl' },
+      { label:'Hebrew + Latin',        text:'שלום Hello',       note:'Hebrew + Latin bidi',              dir:'rtl' },
+      { label:'ZWJ sequence',          text:'‍‍',     note:'bare ZWJ \u2014 should not render',      dir:'ltr' },
+      { label:'ZWNJ sequence',         text:'a‌b',         note:'ZWNJ between latin chars',          dir:'ltr' },
+      { label:'Mixed scripts',         text:'Hello نمستے নমস্কার', note:'4-script mix',                  dir:'ltr' },
+      { label:'Emoji + RTL',           text:'👋 مرحبا 🌍',     note:'emoji in RTL context',             dir:'rtl' },
+      { label:'Long mark seq.',        text:'à́̂̃̄', note:'5 combining marks on one base', dir:'ltr' },
+      { label:'Null-width chars',      text:'a​‌‍b', note:'ZWSP+ZWNJ+ZWJ between chars',  dir:'ltr' },
+      { label:'Numerals all scripts',  text:'1 ١ ১ ๑ १',       note:'digits across 5 scripts',           dir:'ltr' },
+      { label:'Symbol block',          text:'★☆♠♣♥♦',         note:'misc symbols coverage',             dir:'ltr' },
+      { label:'Dingbats',              text:'✓✗✦✧❖❗',         note:'dingbat coverage',                  dir:'ltr' },
+      { label:'Greek + Latin',         text:'αβγδ abcd ΑΒΓΔ',  note:'Greek + Latin mix',                dir:'ltr' },
+      { label:'Cyrillic text',         text:'Привет мир',       note:'Cyrillic basic sentence',           dir:'ltr' },
+      { label:'Thai word',             text:'สวัสดี',           note:'Thai with tone marks',              dir:'ltr' },
+    ]
+  }
+};
+
+const WATERFALL_SIZES = [8,10,12,14,16,18,24,32,48,64,96];
+const WATERFALL_TEXT  = 'The quick brown fox';
+
+let stressResults = {};
+
+function runAllStress() {
+  if (!fontData) return;
+  stressResults = {};
+  const fontName = reportData ? reportData.familyName : 'loaded font';
+  let totalPass=0, totalWarn=0, totalFail=0, totalSkip=0;
+
+  Object.entries(STRESS_PACKS).forEach(([key, pack]) => {
+    const results = runStressPack(key, pack, fontName);
+    stressResults[key] = results;
+    results.forEach(r => {
+      if (r.status==='pass') totalPass++;
+      else if (r.status==='warn') totalWarn++;
+      else if (r.status==='fail') totalFail++;
+      else totalSkip++;
+    });
+  });
+
+  // Render waterfall
+  renderWaterfall(fontName);
+
+  // Update score
+  const total = totalPass+totalWarn+totalFail+totalSkip;
+  const score = total>0 ? Math.round((totalPass*100 + totalWarn*60) / (total*100) * 100) : 0;
+  document.getElementById('stressScore').textContent = score;
+  document.getElementById('stressScoreBar').style.width = score+'%';
+  document.getElementById('stressScoreBar').style.background = score>=80?'var(--green)':score>=60?'var(--yellow)':'var(--red)';
+  document.getElementById('stressPass').textContent = totalPass;
+  document.getElementById('stressWarn').textContent = totalWarn;
+  document.getElementById('stressFail').textContent = totalFail;
+  const verdicts = ['🚫 Critical shaping failures','⚠️ Several shaping issues','👍 Mostly good shaping','✅ Excellent shaping quality'];
+  const vi = score>=80?3:score>=60?2:score>=40?1:0;
+  document.getElementById('stressVerdict').textContent = verdicts[vi];
+}
+
+function runStressPack(key, pack, fontName) {
+  const grid = document.getElementById(pack.grid);
+  const badge = document.getElementById(pack.badge);
+  grid.innerHTML = '';
+  const results = [];
+
+  pack.tests.forEach(test => {
+    // Check if font has ANY codepoint from this test string
+    const cps = [...test.text].map(c => c.codePointAt(0));
+    const hasSome = cps.some(cp => cp > 0x007F ? coveredCPs.has(cp) : true);
+    const hasAll  = cps.filter(cp=>cp>0x007F).every(cp => coveredCPs.has(cp));
+
+    let status = 'pass';
+    let note2  = '';
+
+    if (!hasSome) {
+      status = 'skip';
+      note2  = 'Script not in font';
+    } else if (!hasAll) {
+      status = 'warn';
+      const missing = cps.filter(cp=>cp>0x007F&&!coveredCPs.has(cp));
+      note2 = missing.length + ' codepoint(s) missing: ' + missing.slice(0,3).map(c=>'U+'+c.toString(16).toUpperCase()).join(' ');
+    } else {
+      status = 'pass';
+      note2  = 'All codepoints present';
+    }
+
+    results.push({...test, status, note2});
+
+    // Render card
+    const card = document.createElement('div');
+    card.className = 'stress-card ' + status;
+
+    const statusLabels = {pass:'✓ PASS', warn:'⚠ WARN', fail:'✗ FAIL', skip:'\u2014 SKIP'};
+    card.innerHTML = `
+      <div class="stress-label">
+        <span>${test.label}</span>
+        <span class="stress-status ${status}">${statusLabels[status]}</span>
+      </div>
+      <div class="stress-render ${test.dir==='rtl'?'rtl':''}" id="sr_${key}_${results.length}"
+           style="font-family:'${fontName}',system-ui,sans-serif">${escHtml(test.text)}</div>
+      <div class="stress-info">
+        <div>${test.note}</div>
+        <div style="margin-top:2px;color:${status==='pass'?'var(--green)':status==='warn'?'var(--yellow)':'var(--text3)'}">${note2}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Badge
+  const passes = results.filter(r=>r.status==='pass').length;
+  const warns  = results.filter(r=>r.status==='warn').length;
+  const fails  = results.filter(r=>r.status==='fail').length;
+  const skips  = results.filter(r=>r.status==='skip').length;
+
+  if (skips === results.length) {
+    badge.className = 'section-badge badge-info';
+    badge.textContent = 'NOT IN FONT';
+  } else if (fails > 0) {
+    badge.className = 'section-badge badge-fail';
+    badge.textContent = fails + ' FAIL';
+  } else if (warns > 0) {
+    badge.className = 'section-badge badge-warn';
+    badge.textContent = warns + ' WARN · ' + passes + ' PASS';
+  } else {
+    badge.className = 'section-badge badge-ok';
+    badge.textContent = passes + ' / ' + (results.length-skips) + ' PASS';
+  }
+
+  return results;
+}
+
+function renderWaterfall(fontName) {
+  const container = document.getElementById('waterfallContainer');
+  container.innerHTML = '';
+  const wTexts = [
+    { size: null, text: 'ABCDEFabcdef 0123' },
+    { size: null, text: 'আমার সোনার বাংলা' },
+    { size: null, text: 'السلام عليكم ورحمة' },
+  ];
+  WATERFALL_SIZES.forEach(size => {
+    wTexts.forEach(wt => {
+      const row = document.createElement('div');
+      row.className = 'waterfall-row';
+      row.innerHTML = `
+        <div class="waterfall-size">${size}px</div>
+        <div class="waterfall-text" style="font-size:${size}px;font-family:'${fontName}',system-ui,sans-serif">${escHtml(wt.text)}</div>
+      `;
+      container.appendChild(row);
+    });
+  });
+}
+
+function resetStress() {
+  stressResults = {};
+  ['Bn','Ar','Dev','Lat','Glob'].forEach(k => {
+    const grid  = document.getElementById('stressGrid'+k);
+    const badge = document.getElementById('badgeStress'+k);
+    if (grid)  grid.innerHTML = '';
+    if (badge) { badge.className='section-badge'; badge.textContent='NOT RUN'; }
+  });
+  document.getElementById('waterfallContainer').innerHTML = '';
+  document.getElementById('stressScore').textContent = '\u2014';
+  document.getElementById('stressVerdict').textContent = 'Run tests to see results';
+  document.getElementById('stressScoreBar').style.width = '0%';
+  document.getElementById('stressPass').textContent = '\u2014';
+  document.getElementById('stressWarn').textContent = '\u2014';
+  document.getElementById('stressFail').textContent = '\u2014';
+}
+
+function onBgChange(val){var r=document.getElementById("gdRender");if(r){r.style.background=val;r.style.color=isLight(val)?"#1a1a2e":"#ffffff";}drawGlyphOutline(gbSel?gbSel.gid:-1);}
+function hexRgba(hex,a){var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return "rgba("+r+","+g+","+b+","+a+")";}
+function isLight(hex){
+  try{
+    var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    return (r*299+g*587+b*114)/1000>128;
+  }catch(e){ return true; }
+}
+function escHtml(str) {
+  var _a='&'+'amp;',_l='&'+'lt;',_g='&'+'gt;'; return str.replace(/&/g,_a).replace(/</g,_l).replace(/>/g,_g);
+}
+
+
+// ════════════════════════════════════════════════
+//  CHUNK 4 \u2014 SHAPING QA ENGINE
+// ════════════════════════════════════════════════
+
+// Unicode category/script helpers (simplified)
+const UNICODE_SCRIPTS = [
+  { name:'Bengali',    start:0x0980, end:0x09FF },
+  { name:'Arabic',     start:0x0600, end:0x06FF },
+  { name:'Devanagari', start:0x0900, end:0x097F },
+  { name:'Hebrew',     start:0x0590, end:0x05FF },
+  { name:'Thai',       start:0x0E00, end:0x0E7F },
+  { name:'Greek',      start:0x0370, end:0x03FF },
+  { name:'Cyrillic',   start:0x0400, end:0x04FF },
+  { name:'Tamil',      start:0x0B80, end:0x0BFF },
+  { name:'Telugu',     start:0x0C00, end:0x0C7F },
+  { name:'Malayalam',  start:0x0D00, end:0x0D7F },
+  { name:'Gujarati',   start:0x0A80, end:0x0AFF },
+  { name:'Gurmukhi',   start:0x0A00, end:0x0A7F },
+  { name:'Sinhala',    start:0x0D80, end:0x0DFF },
+  { name:'Khmer',      start:0x1780, end:0x17FF },
+  { name:'Myanmar',    start:0x1000, end:0x109F },
+  { name:'Tibetan',    start:0x0F00, end:0x0FFF },
+  { name:'Hiragana',   start:0x3040, end:0x309F },
+  { name:'Katakana',   start:0x30A0, end:0x30FF },
+  { name:'Hangul',     start:0xAC00, end:0xD7AF },
+  { name:'CJK',        start:0x4E00, end:0x9FFF },
+  { name:'Ethiopic',   start:0x1200, end:0x137F },
+  { name:'Georgian',   start:0x10A0, end:0x10FF },
+  { name:'Armenian',   start:0x0530, end:0x058F },
+  { name:'Latin',      start:0x0020, end:0x024F },
+];
+
+const BIDI_TYPES = {
+  RTL_SCRIPTS: ['Arabic','Hebrew','Syriac','Thaana'],
+};
+
+const UNICODE_CATS = {
+  0x0020: 'Space', 0x00A0: 'No-Break Space', 0x200B: 'Zero-Width Space',
+  0x200C: 'ZWNJ',  0x200D: 'ZWJ',            0x00AD: 'Soft Hyphen',
+  0x000A: 'Line Feed', 0x000D: 'Carriage Return',
+  0x0009: 'Tab',   0xFEFF: 'BOM / ZWNBSP',   0x200E: 'LRM', 0x200F: 'RLM',
+};
+
+let activeFeatures = new Set(['kern','liga','calt','locl','mark','mkmk']);
+let currentShapingText = '';
+
+function setShapingText(txt) {
+  document.getElementById('shapingInput').value = txt;
+  runShapingAnalysis();
+}
+
+function clearShaping() {
+  document.getElementById('shapingInput').value = '';
+  document.getElementById('previewFont').textContent   = '';
+  document.getElementById('previewSystem').textContent = '';
+  document.getElementById('featureTogglePreview').textContent = '';
+  document.getElementById('clusterGrid').innerHTML     = '';
+  document.getElementById('cpInspectorBody').innerHTML = '';
+  document.getElementById('featureToggleGrid').innerHTML = '';
+  document.getElementById('scriptDetectGrid').innerHTML = '';
+  document.getElementById('gsub-chain-list').innerHTML  = '';
+  document.getElementById('badgeClusters').className   = 'section-badge';
+  document.getElementById('badgeClusters').textContent  = '\u2014';
+  document.getElementById('badgeCodepoints').className  = 'section-badge';
+  document.getElementById('badgeCodepoints').textContent = '\u2014';
+  document.getElementById('badgeShapePreview').className  = 'section-badge badge-info';
+  document.getElementById('badgeShapePreview').textContent = '\u2014';
+  document.getElementById('badgeScriptDetect').className  = 'section-badge';
+  document.getElementById('badgeScriptDetect').textContent = '\u2014';
+  document.getElementById('badgeGlyphMap').className   = 'section-badge';
+  document.getElementById('badgeGlyphMap').textContent  = '\u2014';
+}
+
+function runShapingAnalysis() {
+  const text = document.getElementById('shapingInput').value.trim();
+  if (!text) return;
+  currentShapingText = text;
+  const fontName = reportData ? reportData.familyName : 'sans-serif';
+
+  // ── Live preview ──
+  const prevFont   = document.getElementById('previewFont');
+  const prevSystem = document.getElementById('previewSystem');
+  const dir = document.getElementById('previewDir').value;
+  const size = document.getElementById('previewSize').value;
+  prevFont.textContent   = text;
+  prevSystem.textContent = text;
+  prevFont.style.fontFamily   = "'" + fontName + "', system-ui, sans-serif";
+  prevFont.style.fontSize     = size + 'px';
+  prevFont.style.direction    = dir;
+  prevSystem.style.fontSize   = size + 'px';
+  prevSystem.style.direction  = dir;
+  document.getElementById('badgeShapePreview').textContent = size + 'px · ' + dir.toUpperCase();
+
+  // ── Cluster analysis ──
+  renderClusterAnalysis(text, fontName);
+
+  // ── Codepoint inspector ──
+  renderCodepointInspector(text);
+
+  // ── Script detection ──
+  renderScriptDetection(text);
+
+  // ── Feature toggles ──
+  renderFeatureToggles(fontName, text);
+
+  // ── GSUB chains ──
+  renderGSUBChains();
+}
+
+// ── CLUSTER ANALYSIS ──
+function renderClusterAnalysis(text, fontName) {
+  const grid = document.getElementById('clusterGrid');
+  grid.innerHTML = '';
+
+  // Segment into grapheme clusters (simplified: split by combining marks)
+  const clusters = segmentClusters(text);
+  let missingCount = 0;
+
+  clusters.forEach((cluster, i) => {
+    const cps = [...cluster].map(c => c.codePointAt(0));
+    const allPresent = cps.filter(cp=>cp>0x007F).every(cp => coveredCPs.has(cp));
+    const somePresent = cps.filter(cp=>cp>0x007F).some(cp => coveredCPs.has(cp));
+    const isControl = cps.every(cp => cp < 0x0020 || cp === 0x200B || cp === 0x200C || cp === 0x200D || cp === 0x200E || cp === 0x200F);
+
+    if (isControl) return; // skip zero-width / control
+
+    const status = allPresent ? 'ok' : somePresent ? 'partial' : 'missing';
+    if (status === 'missing') missingCount++;
+
+    const card = document.createElement('div');
+    card.className = 'cluster-card' + (status==='missing'?' missing':'');
+    card.title = 'Cluster ' + (i+1) + ': ' + cps.map(cp=>'U+'+cp.toString(16).toUpperCase().padStart(4,'0')).join(' ');
+    card.onclick = () => {
+      document.querySelectorAll('.cluster-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      showClusterDetail(cluster, cps, fontName);
+    };
+
+    const dot = document.createElement('div');
+    dot.className = 'cluster-dot ' + status;
+
+    const render = document.createElement('div');
+    render.className = 'cluster-render';
+    render.style.fontFamily = "'" + fontName + "', system-ui, sans-serif";
+    render.textContent = cluster;
+
+    const label = document.createElement('div');
+    label.className = 'cluster-label';
+    label.textContent = cps.length === 1
+      ? 'U+' + cps[0].toString(16).toUpperCase().padStart(4,'0')
+      : cps.length + ' cps';
+
+    card.appendChild(dot);
+    card.appendChild(render);
+    card.appendChild(label);
+    grid.appendChild(card);
+  });
+
+  const badge = document.getElementById('badgeClusters');
+  const total = grid.children.length;
+  if (missingCount > 0) {
+    badge.className = 'section-badge badge-warn';
+    badge.textContent = missingCount + ' cluster(s) missing';
+  } else {
+    badge.className = 'section-badge badge-ok';
+    badge.textContent = total + ' clusters · all present';
+  }
+}
+
+function segmentClusters(text) {
+  // Simple grapheme cluster segmentation: base + combining marks
+  const clusters = [];
+  const cps = [...text];
+  let current = '';
+  for (let i = 0; i < cps.length; i++) {
+    const cp = cps[i].codePointAt(0);
+    const isCombining = (cp >= 0x0300 && cp <= 0x036F)  // combining diacritical
+      || (cp >= 0x0900 && cp <= 0x097F && cp !== 0x0900) // Devanagari marks
+      || (cp >= 0x0980 && cp <= 0x09FF && cp !== 0x0980) // Bengali marks
+      || (cp >= 0x0600 && cp <= 0x06FF && (cp >= 0x064B && cp <= 0x065F)) // Arabic harakat
+      || cp === 0x09BC || cp === 0x09BE || cp === 0x09BF || cp === 0x09C0
+      || cp === 0x09C1 || cp === 0x09C2 || cp === 0x09C3 || cp === 0x09C4
+      || cp === 0x09C7 || cp === 0x09C8 || cp === 0x09CB || cp === 0x09CC
+      || cp === 0x09CD // virama
+      || cp === 0x094D // devanagari virama
+      || cp === 0x200C || cp === 0x200D; // ZWNJ ZWJ
+    if (isCombining && current.length > 0) {
+      current += cps[i];
+    } else {
+      if (current.length > 0) clusters.push(current);
+      current = cps[i];
+    }
+  }
+  if (current.length > 0) clusters.push(current);
+  return clusters;
+}
+
+function showClusterDetail(cluster, cps, fontName) {
+  // Highlight relevant row in codepoint table
+  const rows = document.querySelectorAll('#cpInspectorBody tr');
+  rows.forEach(r => r.style.background = '');
+  cps.forEach(cp => {
+    rows.forEach(r => {
+      if (r.dataset.cp === String(cp)) r.style.background = 'rgba(123,110,246,0.10)';
+    });
+  });
+}
+
+// ── CODEPOINT INSPECTOR ──
+function renderCodepointInspector(text) {
+  const tbody = document.getElementById('cpInspectorBody');
+  tbody.innerHTML = '';
+  const cps = [...text].map(c => c.codePointAt(0));
+
+  cps.forEach((cp, i) => {
+    const char     = String.fromCodePoint(cp);
+    const hex      = 'U+' + cp.toString(16).toUpperCase().padStart(4,'0');
+    const inFont   = cp <= 0x007F ? true : coveredCPs.has(cp);
+    const script   = getScriptForCP(cp);
+    const bidi     = getBidiType(cp, script);
+    const catName  = UNICODE_CATS[cp] || getUnicodeCatName(cp);
+
+    const tr = document.createElement('tr');
+    tr.dataset.cp = String(cp);
+    tr.innerHTML = `
+      <td style="color:var(--text3);font-family:var(--mono)">${i+1}</td>
+      <td style="font-size:20px;text-align:center;font-family:'${reportData?reportData.familyName:''}',system-ui">${cp >= 0x0020 && cp !== 0x00AD ? char : '·'}</td>
+      <td style="font-family:var(--mono);color:var(--accent)">${hex}</td>
+      <td style="color:var(--text2);font-size:12px">${catName}</td>
+      <td><span class="section-badge ${inFont?'badge-ok':'badge-fail'}">${inFont?'✓ Yes':'✗ No'}</span></td>
+      <td style="color:var(--text2);font-size:12px">${script}</td>
+      <td><span class="section-badge ${bidi==='RTL'?'badge-warn':bidi==='Neutral'?'badge-info':'badge-ok'}">${bidi}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const badge = document.getElementById('badgeCodepoints');
+  badge.className = 'section-badge badge-info';
+  badge.textContent = cps.length + ' codepoints';
+}
+
+function getScriptForCP(cp) {
+  for (const s of UNICODE_SCRIPTS) {
+    if (cp >= s.start && cp <= s.end) return s.name;
+  }
+  if (cp >= 0x0020 && cp <= 0x007E) return 'Basic Latin';
+  if (cp >= 0x2600 && cp <= 0x27BF) return 'Symbols';
+  return 'Other';
+}
+
+function getBidiType(cp, script) {
+  if (BIDI_TYPES.RTL_SCRIPTS.includes(script)) return 'RTL';
+  if (cp >= 0x0590 && cp <= 0x05FF) return 'RTL';
+  if (cp >= 0x0600 && cp <= 0x06FF) return 'RTL';
+  if (cp === 0x200F) return 'RLM';
+  if (cp === 0x200E) return 'LRM';
+  if ((cp >= 0x0030 && cp <= 0x0039) || (cp >= 0x0660 && cp <= 0x0669)) return 'Neutral';
+  if (cp < 0x0020 || cp === 0x0020) return 'Neutral';
+  return 'LTR';
+}
+
+function getUnicodeCatName(cp) {
+  if (cp >= 0x0300 && cp <= 0x036F) return 'Combining Diacritical';
+  if (cp >= 0x064B && cp <= 0x065F) return 'Arabic Harakat';
+  if (cp === 0x09CD || cp === 0x094D) return 'Virama';
+  if (cp >= 0x0900 && cp <= 0x097F) return 'Devanagari';
+  if (cp >= 0x0980 && cp <= 0x09FF) return 'Bengali';
+  if (cp >= 0x0600 && cp <= 0x06FF) return 'Arabic';
+  if (cp >= 0x0041 && cp <= 0x005A) return 'Uppercase Letter';
+  if (cp >= 0x0061 && cp <= 0x007A) return 'Lowercase Letter';
+  if (cp >= 0x0030 && cp <= 0x0039) return 'Decimal Digit';
+  if (cp >= 0x2000 && cp <= 0x206F) return 'General Punctuation';
+  if (cp >= 0x0021 && cp <= 0x002F) return 'ASCII Punctuation';
+  if (cp > 0x1F000) return 'Emoji / Symbol';
+  return 'Unicode Character';
+}
+
+// ── SCRIPT DETECTION ──
+function renderScriptDetection(text) {
+  const grid = document.getElementById('scriptDetectGrid');
+  grid.innerHTML = '';
+  const cps = [...text].map(c => c.codePointAt(0));
+  const detected = new Map();
+
+  cps.forEach(cp => {
+    const sc = getScriptForCP(cp);
+    detected.set(sc, (detected.get(sc)||0) + 1);
+  });
+
+  const all = ['Basic Latin','Latin','Bengali','Arabic','Devanagari','Hebrew','Thai','Greek',
+    'Cyrillic','Tamil','Telugu','Malayalam','Gujarati','Gurmukhi','Sinhala','Khmer',
+    'Myanmar','Tibetan','Hiragana','Katakana','Hangul','CJK','Ethiopic','Georgian','Armenian','Symbols','Other'];
+
+  all.forEach(sc => {
+    const count = detected.get(sc) || 0;
+    const tag = document.createElement('span');
+    tag.className = 'script-tag' + (count>0?' detected':'');
+    tag.title = count + ' character(s)';
+    tag.textContent = (count>0?'✓ ':'') + sc + (count>0?' ('+count+')':'');
+    grid.appendChild(tag);
+  });
+
+  const badge = document.getElementById('badgeScriptDetect');
+  const detectedCount = [...detected.keys()].filter(k=>k!=='Other'&&k!=='Basic Latin'||detected.get(k)>0).length;
+  badge.className = 'section-badge badge-info';
+  badge.textContent = detected.size + ' script(s) detected';
+}
+
+// ── FEATURE TOGGLES ──
+function renderFeatureToggles(fontName, text) {
+  const grid = document.getElementById('featureToggleGrid');
+  grid.innerHTML = '';
+
+  const allTags = reportData
+    ? [...(reportData.gsubFeatures||[]), ...(reportData.gposFeatures||[])].map(f=>f.tag)
+    : [];
+
+  const commonFeatures = ['kern','liga','calt','dlig','smcp','onum','lnum','tnum','frac',
+    'sups','subs','case','zero','ss01','ss02','ss03','cv01','cv02',
+    'mark','mkmk','locl','abvs','blwf','cjct','rlig',
+    'init','medi','fina','isol'];
+
+  const toShow = commonFeatures.filter(t => allTags.includes(t) || ['kern','liga','calt','mark','locl'].includes(t));
+
+  toShow.forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = 'feature-toggle-btn' + (activeFeatures.has(tag)?' on':'');
+    btn.textContent = tag;
+    btn.title = activeFeatures.has(tag) ? 'Click to disable' : 'Click to enable';
+    btn.onclick = () => {
+      if (activeFeatures.has(tag)) activeFeatures.delete(tag);
+      else activeFeatures.add(tag);
+      btn.classList.toggle('on', activeFeatures.has(tag));
+      updateFeaturePreview(fontName, text);
+    };
+    grid.appendChild(btn);
+  });
+
+  const badge = document.getElementById('badgeFeatureToggle');
+  badge.textContent = toShow.length + ' features · ' + activeFeatures.size + ' active';
+  updateFeaturePreview(fontName, text);
+}
+
+function updateFeaturePreview(fontName, text) {
+  const el = document.getElementById('featureTogglePreview');
+  el.style.fontFamily = "'" + fontName + "', system-ui, sans-serif";
+  const settings = [...activeFeatures].map(f => '"'+f+'" 1').join(', ')
+    + ', ' + ['kern','liga','calt','mark','mkmk','locl','abvs','blwf','cjct','rlig','init','medi','fina','isol']
+        .filter(t => !activeFeatures.has(t)).map(f => '"'+f+'" 0').join(', ');
+  el.style.fontFeatureSettings = settings;
+  el.textContent = text || currentShapingText || 'Type text above to see feature effect';
+}
+
+// ── GSUB SUBSTITUTION CHAINS ──
+function renderGSUBChains() {
+  const list = document.getElementById('gsub-chain-list');
+  list.innerHTML = '';
+
+  if (!fontData || !fontData.tables.gsub) {
+    list.innerHTML = '<div class="empty-state">No GSUB table found in font</div>';
+    document.getElementById('badgeGlyphMap').textContent = 'No GSUB';
+    return;
+  }
+
+  const gsub   = fontData.tables.gsub;
+  const feats  = gsub.featureList ? gsub.featureList.features : [];
+  const lookups = gsub.lookupList ? gsub.lookupList.lookups : [];
+
+  const chains = [];
+
+  feats.slice(0, 40).forEach(feat => {
+    feat.feature.lookupListIndexes.slice(0, 3).forEach(li => {
+      const lookup = lookups[li];
+      if (!lookup) return;
+      // Type 4 = Ligature substitution
+      if (lookup.lookupType === 4) {
+        lookup.subtables.forEach(st => {
+          if (!st.ligatureSets) return;
+          Object.entries(st.ligatureSets).slice(0, 5).forEach(([glyphId, ligs]) => {
+            ligs.slice(0, 3).forEach(lig => {
+              const baseGlyph  = fontData.glyphs.get(parseInt(glyphId));
+              const resultGlyph = fontData.glyphs.get(lig.ligGlyph);
+              const compGlyphs  = (lig.components||[]).map(id => fontData.glyphs.get(id));
+
+              const baseChar   = baseGlyph  ? getGlyphChar(baseGlyph)  : '?';
+              const compChars  = compGlyphs.map(g => g ? getGlyphChar(g) : '?');
+              const resultChar = resultGlyph ? getGlyphChar(resultGlyph) : '?';
+
+              chains.push({ tag: feat.tag, base: baseChar, components: compChars, result: resultChar, type: 'liga' });
+            });
+          });
+        });
+      }
+      // Type 1 = Single substitution
+      if (lookup.lookupType === 1 && chains.length < 30) {
+        lookup.subtables.forEach(st => {
+          if (st.substFormat === 1 && st.glyphs) {
+            st.glyphs.slice(0,3).forEach((gIn, idx) => {
+              const gOut = st.substitutes ? st.substitutes[idx] : null;
+              if (!gOut) return;
+              const gInG  = fontData.glyphs.get(gIn);
+              const gOutG = fontData.glyphs.get(gOut);
+              chains.push({
+                tag: feat.tag,
+                base: gInG  ? getGlyphChar(gInG)  : 'gid'+gIn,
+                components: [],
+                result: gOutG ? getGlyphChar(gOutG) : 'gid'+gOut,
+                type: 'single'
+              });
+            });
+          }
+        });
+      }
+    });
+  });
+
+  if (!chains.length) {
+    list.innerHTML = '<div class="empty-state">No substitution chains found in the first 40 features</div>';
+    document.getElementById('badgeGlyphMap').className = 'section-badge badge-info';
+    document.getElementById('badgeGlyphMap').textContent = '0 chains';
+    return;
+  }
+
+  chains.slice(0, 25).forEach(chain => {
+    const row = document.createElement('div');
+    row.className = 'gsub-chain';
+    const parts = [chain.base, ...chain.components];
+    let html = '';
+    parts.forEach((ch, i) => {
+      html += `<span class="glyph-box">${escHtml(ch)}</span>`;
+      if (i < parts.length - 1) html += `<span class="arrow">+</span>`;
+    });
+    html += `<span class="arrow">→</span>`;
+    html += `<span class="glyph-box">${escHtml(chain.result)}</span>`;
+    html += `<span class="tag-box">${chain.tag}</span>`;
+    html += `<span style="font-size:10px;color:var(--text3);margin-left:4px">${chain.type}</span>`;
+    row.innerHTML = html;
+    list.appendChild(row);
+  });
+
+  document.getElementById('badgeGlyphMap').className = 'section-badge badge-info';
+  document.getElementById('badgeGlyphMap').textContent = chains.length + ' chains';
+}
+
+function getGlyphChar(glyph) {
+  if (!glyph) return '?';
+  // Try to get unicode from name or index
+  const name = glyph.name || '';
+  if (name && glyph.unicode) {
+    try { return String.fromCodePoint(glyph.unicode); } catch(e){}
+  }
+  if (glyph.unicodes && glyph.unicodes.length) {
+    try { return String.fromCodePoint(glyph.unicodes[0]); } catch(e){}
+  }
+  return name.slice(0,4) || '?';
+}
+
+// ── PREVIEW CONTROLS ──
+function updatePreviewSize(val) {
+  document.getElementById('previewSizeVal').textContent = val + 'px';
+  document.getElementById('previewFont').style.fontSize   = val + 'px';
+  document.getElementById('previewSystem').style.fontSize = val + 'px';
+  document.getElementById('badgeShapePreview').textContent = val + 'px · ' + document.getElementById('previewDir').value.toUpperCase();
+}
+
+function updatePreviewDir() {
+  const dir = document.getElementById('previewDir').value;
+  document.getElementById('previewFont').style.direction   = dir;
+  document.getElementById('previewSystem').style.direction = dir;
+}
+
+// Enter key triggers analysis
+document.addEventListener('DOMContentLoaded', () => {
+  const ta = document.getElementById('shapingInput');
+  if (ta) {
+    ta.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runShapingAnalysis(); }
+    });
+  }
+});
+
+
+// ════════════════════════════════════════════════
+// THEME SWITCHER \u2014 safe: uses data attribute not className
+// ════════════════════════════════════════════════
+function setTheme(name) {
+  document.documentElement.setAttribute('data-theme', name);
+  document.querySelectorAll('.thm-btn').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('thm' + name.charAt(0).toUpperCase() + name.slice(1));
+  if (btn) btn.classList.add('active');
+  try { localStorage.setItem('fsc-theme', name); } catch(e){}
+}
+(function(){
+  try {
+    var s = localStorage.getItem('fsc-theme');
+    if (s) setTheme(s);
+  } catch(e){}
+})();
+
+// ════════════════════════════════════════════════
+// BUG DETECTOR \u2014 standalone, no analyzeFont wrap
+// ════════════════════════════════════════════════
+function runBugDetector() {
+  if (!fontData || !reportData) return;
+  var font = fontData;
+  var otB=[], encB=[], glB=[], nmB=[];
+  var allTags = reportData.gsubFeatures.map(function(f){return f.tag;})
+    .concat(reportData.gposFeatures.map(function(f){return f.tag;}));
+
+  // OT checks
+  var lkCount = font.tables.gsub && font.tables.gsub.lookupList ? font.tables.gsub.lookupList.lookups.length : 0;
+  if (lkCount > 0) otB.push({type:'ok',label:'GSUB lookups: '+lkCount,detail:'Lookup list present'});
+  else otB.push({type:'warning',label:'No GSUB lookups found',detail:'Font may have no substitution rules'});
+
+  var hasComb = [...coveredCPs].some(function(cp){ return (cp>=0x0300&&cp<=0x036F)||(cp>=0x0980&&cp<=0x09FF)||(cp>=0x0600&&cp<=0x06FF); });
+  if (hasComb && allTags.indexOf('mark')<0) otB.push({type:'critical',label:'Missing mark feature',detail:'Combining marks present but no GPOS mark'});
+  else if (hasComb) otB.push({type:'ok',label:'mark feature present',detail:'GPOS mark positioning found'});
+  if (allTags.indexOf('kern')>=0) otB.push({type:'ok',label:'kern feature present',detail:'Kerning available'});
+  else otB.push({type:'info',label:'No kern feature',detail:'No OpenType kerning'});
+
+  // Encoding checks
+  var cmap = font.tables.cmap;
+  if (!cmap) { encB.push({type:'critical',label:'Missing cmap',detail:'No Unicode mapping'}); }
+  else {
+    encB.push({type:'ok',label:'cmap present: '+coveredCPs.size+' codepoints',detail:'Unicode mapping found'});
+    var spGid = cmap.glyphIndexMap ? cmap.glyphIndexMap[0x0020] : null;
+    if (!spGid) encB.push({type:'critical',label:'Space (U+0020) not mapped',detail:'Missing space glyph'});
+    else encB.push({type:'ok',label:'Space glyph OK',detail:'U+0020 mapped'});
+    var pua = [...coveredCPs].filter(function(cp){return cp>=0xE000&&cp<=0xF8FF;}).length;
+    if (pua>0) encB.push({type:'info',label:pua+' PUA codepoints',detail:'Private Use Area glyphs present'});
+  }
+
+  // Glyph checks
+  var upm = font.unitsPerEm;
+  if (upm>=256&&upm<=4096) glB.push({type:'ok',label:'UPM: '+upm,detail:'Normal range'});
+  else glB.push({type:'warning',label:'Unusual UPM: '+upm,detail:'Expected 256-4096'});
+  var os2 = font.tables.os2;
+  if (os2) {
+    var wc = os2.usWeightClass;
+    if (wc>=100&&wc<=900) glB.push({type:'ok',label:'Weight class: '+wc,detail:'Valid range'});
+    else glB.push({type:'warning',label:'Weight class out of range: '+wc,detail:'Expected 100-900'});
+  }
+
+  // Name checks
+  var names = font.names;
+  [[1,'Family'],[2,'Subfamily'],[4,'Full Name'],[5,'Version'],[6,'PostScript Name']].forEach(function(pair){
+    var rec = names[pair[0]] || names[String(pair[0])];
+    if (!rec||!Object.keys(rec).length) nmB.push({type:'warning',label:'Missing: '+pair[1]+' (ID '+pair[0]+')',detail:'Required name record absent'});
+    else { var v=rec[Object.keys(rec)[0]]; nmB.push({type:'ok',label:pair[1]+': '+v,detail:'ID '+pair[0]+' present'}); }
+  });
+
+  // Render to export tab lists
+  renderIssueList('bugOTList',otB);
+  renderIssueList('bugEncList',encB);
+  renderIssueList('bugGlyphList',glB);
+  renderIssueList('bugNameList',nmB);
+  setBadgeFromIssues('badgeBugOT',otB);
+  setBadgeFromIssues('badgeBugEnc',encB);
+  setBadgeFromIssues('badgeBugGlyph',glB);
+  setBadgeFromIssues('badgeBugName',nmB);
+
+  var all = otB.concat(encB,glB,nmB);
+  var crits = all.filter(function(b){return b.type==='critical';}).length;
+  var warns = all.filter(function(b){return b.type==='warning';}).length;
+  var score = Math.max(0, 100 - crits*25 - warns*8);
+  var el = document.getElementById('bugScore');
+  if (el) el.textContent = score;
+  var bar = document.getElementById('bugScoreBar');
+  if (bar) { bar.style.width=score+'%'; bar.style.background=score>=80?'var(--green)':score>=60?'var(--yellow)':'var(--red)'; }
+  var vd = document.getElementById('bugVerdict');
+  if (vd) vd.textContent = score>=90?'No significant bugs':'score '+score+'/100 \u2014 review issues below';
+  var cc=document.getElementById('bugCritCount'), wc2=document.getElementById('bugWarnCount'), ic=document.getElementById('bugInfoCount');
+  if(cc)cc.textContent=crits; if(wc2)wc2.textContent=warns; if(ic)ic.textContent=all.filter(function(b){return b.type==='info';}).length;
+
+  if (reportData) reportData.bugScore = score;
+}
+
+
+// ════════════════════════════════════════════════
+// GLYPH BROWSER \u2014 FULL + UNCODED + OUTLINE MODES
+// ════════════════════════════════════════════════
+var gbAll=[], gbFilt=[], gbPage=0, gbPageSz=180, gbCellSz=52, gbSel=null;
+var outlineModes={dots:true, lines:false, fill:true, dir:false};
+var canvasZoom=1, canvasPanX=0, canvasPanY=0, isPanning=false, panStartX=0, panStartY=0;
+var lastTouchDist=0;
+
+function buildGlyphBrowser() {
+  if (!fontData) return;
+  var cmap = fontData.tables.cmap;
+  var codedCPs = {};
+  if (cmap && cmap.glyphIndexMap) {
+    Object.keys(cmap.glyphIndexMap).forEach(function(cpStr){
+      var cp=parseInt(cpStr);
+      codedCPs[cmap.glyphIndexMap[cpStr]] = cp;
+    });
+  }
+  gbAll = [];
+  var totalGlyphs = fontData.glyphs.length;
+  for (var gid=0; gid<totalGlyphs; gid++) {
+    var g = fontData.glyphs.get(gid);
+    var isCoded = gid in codedCPs;
+    var cp = isCoded ? codedCPs[gid] : null;
+    var ch = '\u25a1'; // default: empty square
+    if (cp !== null && cp >= 0x0020) { try{ ch=String.fromCodePoint(cp); }catch(e){} }
+    var nm = g ? (g.name || '') : '';
+    gbAll.push({
+      gid:gid, cp:cp, isCoded:isCoded,
+      hex: cp!==null ? ('U+'+cp.toString(16).toUpperCase().padStart(4,'0')) : ('GID '+gid),
+      ch:ch, name:nm,
+      script: cp!==null ? getScriptForCP(cp) : 'Uncoded',
+      advW: g ? (g.advanceWidth||0) : 0
+    });
+  }
+
+  var coded   = gbAll.filter(function(g){return g.isCoded;}).length;
+  var uncoded = gbAll.length - coded;
+  var elT=document.getElementById('gbTotal'),elC=document.getElementById('gbCoded'),elU=document.getElementById('gbUncoded');
+  if(elT) elT.textContent=gbAll.length.toLocaleString();
+  if(elC) elC.textContent=coded.toLocaleString();
+  if(elU) elU.textContent=uncoded.toLocaleString();
+
+  gbFilt=gbAll.slice(); gbPage=0;
+  renderGlyphPage();
+}
+
+function filterGlyphs(){
+  var q=(document.getElementById('glyphSearch').value||'').toLowerCase().trim();
+  var sc=document.getElementById('glyphScriptFilter').value;
+  gbFilt=gbAll.filter(function(g){
+    if(sc==='coded'   && !g.isCoded) return false;
+    if(sc==='uncoded' && g.isCoded)  return false;
+    if(sc!=='all'&&sc!=='coded'&&sc!=='uncoded'&&g.script!==sc) return false;
+    if(!q) return true;
+    return g.hex.toLowerCase().indexOf(q)>=0
+      || g.name.toLowerCase().indexOf(q)>=0
+      || (g.cp!==null&&g.ch===q)
+      || g.script.toLowerCase().indexOf(q)>=0
+      || ('gid'+g.gid===q.replace(/\s/g,''));
+  });
+  gbPage=0; renderGlyphPage();
+}
+
+function setGlyphCellSz(v){ gbCellSz=parseInt(v); renderGlyphPage(); }
+
+function renderGlyphPage(){
+  var grid=document.getElementById('glyphGrid');
+  var pag=document.getElementById('glyphPagination');
+  if(!grid||!pag) return;
+  var fn=window._loadedFontName||(reportData?reportData.familyName:'');
+  grid.innerHTML=''; pag.innerHTML='';
+  var start=gbPage*gbPageSz, end=Math.min(start+gbPageSz,gbFilt.length);
+  var fEl=document.getElementById('gbFiltered'); if(fEl) fEl.textContent=gbFilt.length.toLocaleString();
+  var totalPg=Math.max(1,Math.ceil(gbFilt.length/gbPageSz));
+  var pEl=document.getElementById('gbPageInfo'); if(pEl) pEl.textContent=(gbPage+1)+' / '+totalPg;
+
+  for(var i=start;i<end;i++){
+    (function(g){
+      var cell=document.createElement('div');
+      cell.className='glyph-cell'+(gbSel&&gbSel.gid===g.gid?' selected':'');
+      if(!g.isCoded) cell.style.opacity='0.55';
+      cell.style.width=(gbCellSz+18)+'px';
+      cell.onclick=function(){showGlyphDetail(g);};
+      var charEl=document.createElement('div');
+      charEl.className='gc-char';
+      charEl.style.fontSize=gbCellSz+'px';
+      charEl.style.minHeight=(gbCellSz+4)+'px';
+      if(fn&&g.isCoded) charEl.style.fontFamily="'"+fn+"',system-ui,sans-serif";
+      charEl.textContent=g.ch;
+      var hexEl=document.createElement('div');
+      hexEl.className='gc-hex';
+      hexEl.textContent=g.isCoded?g.hex:('GID'+g.gid);
+      cell.appendChild(charEl); cell.appendChild(hexEl);
+      grid.appendChild(cell);
+    })(gbFilt[i]);
+  }
+
+  if(totalPg>1){
+    function mkBtn(lbl,pg,dis,act){
+      var b=document.createElement('button');
+      b.className='page-btn'+(act?' cur':'');
+      b.textContent=lbl; b.disabled=dis;
+      b.onclick=function(){gbPage=pg;renderGlyphPage();};
+      return b;
+    }
+    pag.appendChild(mkBtn('Prev',gbPage-1,gbPage===0,false));
+    var sp=Math.max(0,gbPage-3),ep=Math.min(totalPg,sp+7);
+    for(var p=sp;p<ep;p++) pag.appendChild(mkBtn(p+1,p,false,p===gbPage));
+    pag.appendChild(mkBtn('Next',gbPage+1,gbPage>=totalPg-1,false));
+  }
+}
+
+function showGlyphDetail(g){
+  gbSel=g;
+  var panel=document.getElementById('glyphDetailPanel');
+  if(panel) panel.style.display='block';
+  var fn=reportData?reportData.familyName:'';
+
+  var tEl=document.getElementById('gdTitle');
+  if(tEl) tEl.textContent='Glyph Inspector \u2014 '+(g.isCoded?g.hex:'GID '+g.gid)+' '+(g.name?'('+g.name+')':'');
+
+  var render=document.getElementById('gdRender');
+  if(render){
+    if(fn&&g.isCoded) render.style.fontFamily="'"+fn+"',system-ui,sans-serif";
+    render.textContent=g.ch;
+  }
+  var sizes=document.getElementById('gdSizes');
+  if(sizes&&fn&&g.isCoded){
+    sizes.innerHTML='';
+    [12,16,24,36,48].forEach(function(sz){
+      var sp=document.createElement('span');
+      sp.title=sz+'px';
+      sp.style.cssText='font-size:'+sz+'px;color:var(--text2);font-family:\''+fn+'\',system-ui,sans-serif;margin:2px';
+      sp.textContent=g.ch;
+      sizes.appendChild(sp);
+    });
+  }
+
+  // Info table
+  var glyph=fontData.glyphs.get(g.gid);
+  var rows=[
+    ['Char',    g.isCoded?g.ch:'\u2014'],
+    ['Unicode', g.isCoded?g.hex:'(uncoded)'],
+    ['GID',     g.gid],
+    ['Name',    g.name||'(unnamed)'],
+    ['Script',  g.script],
+    ['Coded',   g.isCoded?'Yes':'No (uncoded)'],
+    ['Adv.W',   g.advW+' u'],
+  ];
+  if(glyph){
+    if(glyph.numberOfContours!==undefined) rows.push(['Contours', glyph.numberOfContours>=0?glyph.numberOfContours:'Composite']);
+    if(glyph.xMin!==undefined){
+      rows.push(['xMin',glyph.xMin],['yMin',glyph.yMin],['xMax',glyph.xMax],['yMax',glyph.yMax]);
+      rows.push(['Width',(glyph.xMax-glyph.xMin)+' u'],['Height',(glyph.yMax-glyph.yMin)+' u']);
+    }
+    if(glyph.leftSideBearing!==undefined) rows.push(['LSB',glyph.leftSideBearing]);
+  }
+  var tb=document.getElementById('gdTable');
+  if(tb) tb.innerHTML=rows.map(function(r){
+    return '<tr><td style="color:var(--text3);width:80px;font-size:11px;padding:3px 8px">'+r[0]+'</td>'
+         + '<td style="font-family:var(--mono);font-size:12px;color:var(--text);padding:3px 8px">'+r[1]+'</td></tr>';
+  }).join('');
+
+  // Matrices
+  renderMatrices(g, glyph);
+
+  // Reset canvas view
+  resetCanvasView();
+  drawGlyphOutline(g.gid);
+
+  if(panel) panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderMatrices(g, glyph) {
+  var grid = document.getElementById('matricesGrid');
+  if (!grid || !fontData) return;
+  var os2 = fontData.tables.os2;
+  var upm = fontData.unitsPerEm;
+
+  var metrics = [
+    {lbl:'Advance Width', val:g.advW, max:upm*1.5},
+    {lbl:'GID',           val:g.gid,  max:fontData.glyphs.length},
+  ];
+  if (glyph) {
+    if (glyph.leftSideBearing!==undefined) metrics.push({lbl:'LSB', val:glyph.leftSideBearing, max:upm});
+    var rsb = glyph.leftSideBearing!==undefined&&glyph.xMax!==undefined ? g.advW-glyph.leftSideBearing-(glyph.xMax-glyph.xMin) : null;
+    if (rsb!==null) metrics.push({lbl:'RSB', val:Math.round(rsb), max:upm});
+    if (glyph.xMin!==undefined){
+      metrics.push({lbl:'xMin',val:glyph.xMin,max:upm});
+      metrics.push({lbl:'xMax',val:glyph.xMax,max:upm});
+      metrics.push({lbl:'yMin',val:glyph.yMin,max:upm});
+      metrics.push({lbl:'yMax',val:glyph.yMax,max:upm});
+      metrics.push({lbl:'Width', val:glyph.xMax-glyph.xMin, max:upm});
+      metrics.push({lbl:'Height',val:glyph.yMax-glyph.yMin, max:upm});
+    }
+    if (glyph.numberOfContours!==undefined) metrics.push({lbl:'Contours',val:glyph.numberOfContours>=0?glyph.numberOfContours:0,max:20});
+  }
+  if (os2) {
+    metrics.push({lbl:'Ascender',  val:os2.sTypoAscender, max:upm});
+    metrics.push({lbl:'Descender', val:os2.sTypoDescender,max:upm});
+    metrics.push({lbl:'x-Height',  val:os2.sxHeight||0,   max:upm});
+    metrics.push({lbl:'Cap Height',val:os2.sCapHeight||0,  max:upm});
+    metrics.push({lbl:'Line Gap',  val:os2.sTypoLineGap,   max:upm});
+    metrics.push({lbl:'Win Asc',   val:os2.usWinAscent,    max:upm*1.2});
+    metrics.push({lbl:'Win Desc',  val:os2.usWinDescent,   max:upm*0.5});
+    metrics.push({lbl:'UPM',       val:upm,                max:4096});
+    metrics.push({lbl:'Weight',    val:os2.usWeightClass,  max:900});
+  }
+
+  grid.innerHTML = metrics.map(function(m){
+    var pct = m.max ? Math.min(100, Math.abs(m.val)/m.max*100) : 0;
+    var isNeg = m.val < 0;
+    var color = isNeg ? 'var(--red)' : 'var(--accent)';
+    return '<div class="matrix-cell">'
+      + '<div class="mc-val" style="color:'+color+'">'+m.val+'</div>'
+      + '<div class="mc-lbl">'+m.lbl+'</div>'
+      + '<div class="mc-bar"><div class="mc-bar-fill" style="width:'+pct.toFixed(1)+'%;background:'+color+'"></div></div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── OUTLINE MODE TOGGLE ──
+function toggleOutlineMode(mode) {
+  outlineModes[mode] = !outlineModes[mode];
+  var btn = document.getElementById('omode'+mode.charAt(0).toUpperCase()+mode.slice(1));
+  if(btn) btn.classList.toggle('active', outlineModes[mode]);
+  if(gbSel) drawGlyphOutline(gbSel.gid);
+}
+
+// ── ZOOM/PAN ──
+function zoomCanvas(e) {
+  e.preventDefault();
+  var factor = e.deltaY < 0 ? 1.15 : 0.87;
+  canvasZoom = Math.min(8, Math.max(0.3, canvasZoom*factor));
+  if(gbSel) drawGlyphOutline(gbSel.gid);
+}
+function adjustZoom(f) { canvasZoom=Math.min(8,Math.max(0.3,canvasZoom*f)); if(gbSel) drawGlyphOutline(gbSel.gid); }
+function resetCanvasView() { canvasZoom=1; canvasPanX=0; canvasPanY=0; if(gbSel) drawGlyphOutline(gbSel.gid); }
+function startPan(e) { isPanning=true; panStartX=e.clientX-canvasPanX; panStartY=e.clientY-canvasPanY; var w=document.getElementById('canvasWrap'); if(w) w.style.cursor='grabbing'; }
+function doPan(e) {
+  var coords=document.getElementById('canvasCoords');
+  if(coords){ coords.textContent='zoom: '+canvasZoom.toFixed(2)+'x'; }
+  if(!isPanning) return;
+  canvasPanX=e.clientX-panStartX; canvasPanY=e.clientY-panStartY;
+  if(gbSel) drawGlyphOutline(gbSel.gid);
+}
+function endPan() { isPanning=false; var w=document.getElementById('canvasWrap'); if(w) w.style.cursor='grab'; }
+function startTouch(e) { if(e.touches.length===2) { lastTouchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY); } else { startPan({clientX:e.touches[0].clientX,clientY:e.touches[0].clientY}); } }
+function doTouch(e) {
+  e.preventDefault();
+  if(e.touches.length===2){
+    var d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    canvasZoom=Math.min(8,Math.max(0.3,canvasZoom*(d/lastTouchDist))); lastTouchDist=d;
+    if(gbSel) drawGlyphOutline(gbSel.gid);
+  } else { doPan({clientX:e.touches[0].clientX,clientY:e.touches[0].clientY}); }
+}
+function endTouch() { endPan(); }
+
+function drawGlyphOutline(gid){
+  var canvas=document.getElementById('glyphCanvas');
+  if(!canvas||!fontData) return;
+  var dpr=window.devicePixelRatio||1;
+  var DW=canvas.offsetWidth||600,DH=canvas.offsetHeight||260;
+  if(canvas.width!==Math.round(DW*dpr)||canvas.height!==Math.round(DH*dpr)){
+    canvas.width=Math.round(DW*dpr);canvas.height=Math.round(DH*dpr);
+    canvas.style.width=DW+'px';canvas.style.height=DH+'px';
+  }
+  var ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,DW,DH);
+  var bgCol=(document.getElementById('previewBgPicker')||{value:'#f8f8f8'}).value;
+  var fillCol=(document.getElementById('fillColorPicker')||{value:'#7b6ef6'}).value;
+  var lineCol=(document.getElementById('lineColorPicker')||{value:'#5b4fd4'}).value;
+  var opPct=parseInt((document.getElementById('fillOpacity')||{value:'35'}).value)/100;
+  var bgL=isLight(bgCol);
+  var hLineC=bgL?'rgba(14,165,233,0.55)':'rgba(56,189,248,0.55)';
+  var smoothC=bgL?'#16a34a':'#34c98a';
+  var cornerF=bgL?'rgba(220,38,38,0.5)':'rgba(248,113,113,0.5)';
+  var cornerS=bgL?'rgba(220,38,38,1)':'rgba(248,113,113,1)';
+  var dirC=bgL?'rgba(220,38,38,0.75)':'rgba(248,113,113,0.75)';
+  var axisC=bgL?'rgba(0,0,0,0.28)':'rgba(255,255,255,0.28)';
+  ctx.fillStyle=bgCol;ctx.fillRect(0,0,DW,DH);
+  var glyph=(gid>=0)?fontData.glyphs.get(gid):null;
+  if(!glyph){
+    ctx.fillStyle=bgL?'#888':'#555';ctx.font='13px monospace';ctx.textBaseline='middle';
+    ctx.fillText('No glyph selected',14,DH/2);return;
+  }
+  var upm=fontData.unitsPerEm;
+  var scale=(DH*0.60)/upm*canvasZoom;
+  var offX=DW*0.22+canvasPanX,offY=DH*0.77+canvasPanY;
+  var mx2=function(x){return offX+x*scale;};
+  var my2=function(y){return offY-y*scale;};
+  // Grid
+  ctx.strokeStyle=bgL?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.05)';ctx.lineWidth=0.5;
+  var gridU=upm<=1000?100:200;
+  for(var u=-gridU;u<=upm*1.3;u+=gridU){
+    var gxp=mx2(u),gyp=my2(u);
+    if(gxp>0&&gxp<DW){ctx.beginPath();ctx.moveTo(gxp,0);ctx.lineTo(gxp,DH);ctx.stroke();}
+    if(gyp>0&&gyp<DH){ctx.beginPath();ctx.moveTo(0,gyp);ctx.lineTo(DW,gyp);ctx.stroke();}
+  }
+  var os2=fontData.tables.os2,hhea=fontData.tables.hhea;
+  var advW=glyph.advanceWidth||0;
+  var xMinG=(glyph.xMin!==undefined)?glyph.xMin:0;
+  var xMaxG=(glyph.xMax!==undefined)?glyph.xMax:advW;
+  var lsb=(glyph.leftSideBearing!==undefined)?glyph.leftSideBearing:xMinG;
+  var rsb=advW-lsb-(xMaxG-xMinG);
+  function hLine(yu,col,lbl,dash){
+    var yp=my2(yu);if(yp<-5||yp>DH+5)return;
+    ctx.save();ctx.strokeStyle=col;ctx.lineWidth=1;
+    if(dash)ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(0,yp);ctx.lineTo(DW,yp);ctx.stroke();ctx.setLineDash([]);
+    ctx.font='bold 9px monospace';var tw=ctx.measureText(lbl).width;
+    ctx.fillStyle=bgCol;ctx.fillRect(3,yp-11,tw+6,12);
+    ctx.fillStyle=col;ctx.fillText(lbl,5,yp-2);ctx.restore();
+  }
+  function vLine(xp,col,lbl,dash){
+    if(xp<-5||xp>DW+5)return;
+    ctx.save();ctx.strokeStyle=col;ctx.lineWidth=1;
+    if(dash)ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(xp,0);ctx.lineTo(xp,DH);ctx.stroke();ctx.setLineDash([]);
+    if(lbl){var tw2=ctx.measureText(lbl).width;ctx.font='bold 9px monospace';
+      ctx.fillStyle=bgCol;ctx.fillRect(xp+2,3,tw2+5,12);
+      ctx.fillStyle=col;ctx.fillText(lbl,xp+4,12);}ctx.restore();
+  }
+  hLine(0,axisC,'baseline',false);
+  if(os2){
+    hLine(os2.sTypoAscender,'#16a34a','asc='+os2.sTypoAscender,true);
+    hLine(os2.sTypoDescender,'#dc2626','desc='+os2.sTypoDescender,true);
+    if(os2.sxHeight)hLine(os2.sxHeight,'#d97706','xH='+os2.sxHeight,true);
+    if(os2.sCapHeight)hLine(os2.sCapHeight,'#7c3aed','capH='+os2.sCapHeight,true);
+  }
+  if(hhea){
+    hLine(hhea.ascender,'rgba(22,163,74,0.4)','hhea-asc='+hhea.ascender,true);
+    hLine(hhea.descender,'rgba(220,38,38,0.4)','hhea-desc='+hhea.descender,true);
+  }
+  vLine(mx2(0),axisC,'origin',false);
+  vLine(mx2(advW),'#2563eb','AW='+advW,false);
+  if(lsb!==0)vLine(mx2(lsb),'#0891b2','LSB='+Math.round(lsb),true);
+  vLine(mx2(lsb+(xMaxG-xMinG)),'#0891b2','RSB='+Math.round(rsb),true);
+  // Build Path2D from commands
+  function buildP2D(gl,ox,oy,sz){
+    try{
+      var po=gl.getPath(ox,oy,sz);
+      if(!po||!po.commands||!po.commands.length)return null;
+      var d='';
+      po.commands.forEach(function(c){
+        if(c.type==='M')d+='M'+c.x.toFixed(2)+','+c.y.toFixed(2)+' ';
+        else if(c.type==='L')d+='L'+c.x.toFixed(2)+','+c.y.toFixed(2)+' ';
+        else if(c.type==='C')d+='C'+c.x1.toFixed(2)+','+c.y1.toFixed(2)+' '+c.x2.toFixed(2)+','+c.y2.toFixed(2)+' '+c.x.toFixed(2)+','+c.y.toFixed(2)+' ';
+        else if(c.type==='Q')d+='Q'+c.x1.toFixed(2)+','+c.y1.toFixed(2)+' '+c.x.toFixed(2)+','+c.y.toFixed(2)+' ';
+        else if(c.type==='Z')d+='Z ';
+      });
+      return d.trim()?new Path2D(d):null;
+    }catch(e){return null;}
+  }
+  var p2d=buildP2D(glyph,offX,offY,upm*scale);
+  if(outlineModes.fill&&p2d){
+    ctx.save();ctx.fillStyle=hexRgba(fillCol,opPct);ctx.fill(p2d,'nonzero');ctx.restore();
+  }
+  if(outlineModes.lines&&p2d){
+    ctx.save();ctx.strokeStyle=hexRgba(lineCol,Math.min(1,opPct+0.45));
+    ctx.lineWidth=Math.max(0.8,1.6/canvasZoom);ctx.lineJoin='round';ctx.lineCap='round';
+    ctx.stroke(p2d);ctx.restore();
+  }
+  if((outlineModes.dots||outlineModes.dir)&&glyph.path&&glyph.path.commands){
+    var cmds=glyph.path.commands;
+    // Pass 1: handle lines both directions
+    if(outlineModes.dots){
+      ctx.save();ctx.strokeStyle=hLineC;ctx.lineWidth=Math.max(0.7,0.9/canvasZoom);
+      for(var hi=0;hi<cmds.length;hi++){
+        var hc=cmds[hi];
+        if(hc.type==='C'||hc.type==='Q'){
+          var pvx=null,pvy=null;
+          for(var pii=hi-1;pii>=0;pii--){if(cmds[pii].x!==undefined){pvx=cmds[pii].x;pvy=cmds[pii].y;break;}}
+          if(pvx!==null){ctx.beginPath();ctx.moveTo(mx2(pvx),my2(pvy));ctx.lineTo(mx2(hc.x1),my2(hc.y1));ctx.stroke();}
+          if(hc.type==='C'){
+            ctx.beginPath();ctx.moveTo(mx2(hc.x),my2(hc.y));ctx.lineTo(mx2(hc.x2),my2(hc.y2));ctx.stroke();
+            // Mirror extension through end point (smooth node visual)
+            var nc2=cmds[hi+1];
+            if(nc2&&(nc2.type==='C'||nc2.type==='Q')){
+              var dx2=hc.x-hc.x2,dy2=hc.y-hc.y2;
+              ctx.save();ctx.strokeStyle=hLineC.replace('0.55','0.22');ctx.setLineDash([2,3]);
+              ctx.beginPath();ctx.moveTo(mx2(hc.x),my2(hc.y));
+              ctx.lineTo(mx2(hc.x+dx2*0.6),my2(hc.y+dy2*0.6));ctx.stroke();
+              ctx.setLineDash([]);ctx.restore();
+            }
+          } else {
+            ctx.beginPath();ctx.moveTo(mx2(hc.x),my2(hc.y));ctx.lineTo(mx2(hc.x1),my2(hc.y1));ctx.stroke();
+          }
+        }
+      }
+      ctx.restore();
+    }
+    // Pass 2: direction arrows
+    if(outlineModes.dir){
+      var pdx=null,pdy=null;ctx.save();ctx.fillStyle=dirC;
+      for(var di=0;di<cmds.length;di++){
+        var dc=cmds[di];
+        if(dc.x!==undefined&&pdx!==null){
+          var ddx=mx2(dc.x)-mx2(pdx),ddy=my2(dc.y)-my2(pdy);
+          var dl=Math.sqrt(ddx*ddx+ddy*ddy);
+          if(dl>14){
+            var midX=(mx2(dc.x)+mx2(pdx))/2,midY=(my2(dc.y)+my2(pdy))/2;
+            var ux=ddx/dl,uy=ddy/dl,aw=5;
+            ctx.beginPath();
+            ctx.moveTo(midX+ux*aw,midY+uy*aw);
+            ctx.lineTo(midX-ux*aw+uy*aw*0.65,midY-uy*aw-ux*aw*0.65);
+            ctx.lineTo(midX-ux*aw-uy*aw*0.65,midY-uy*aw+ux*aw*0.65);
+            ctx.closePath();ctx.fill();
+          }
+        }
+        if(dc.x!==undefined){pdx=dc.x;pdy=dc.y;}
+      }
+      ctx.restore();
+    }
+    // Pass 3: nodes
+    if(outlineModes.dots){
+      function drawDiamond(px,py,sz,fc,sc2){
+        ctx.save();ctx.translate(px,py);ctx.rotate(Math.PI/4);
+        ctx.fillStyle=fc;ctx.strokeStyle=sc2;ctx.lineWidth=Math.max(0.8,1.0/canvasZoom);
+        ctx.fillRect(-sz/2,-sz/2,sz,sz);ctx.strokeRect(-sz/2,-sz/2,sz,sz);ctx.restore();
+      }
+      var ptSz=Math.max(3.5,5.5/canvasZoom),hdSz=Math.max(2.8,4.2/canvasZoom);
+      for(var ni=0;ni<cmds.length;ni++){
+        var nc=cmds[ni];
+        if(nc.type==='C'||nc.type==='Q'){
+          drawDiamond(mx2(nc.x1),my2(nc.y1),hdSz,hexRgba('#0ea5e9',0.5),hexRgba('#0ea5e9',0.95));
+          if(nc.type==='C')drawDiamond(mx2(nc.x2),my2(nc.y2),hdSz,hexRgba('#0ea5e9',0.5),hexRgba('#0ea5e9',0.95));
+        }
+        if(nc.x!==undefined){
+          var npx=mx2(nc.x),npy=my2(nc.y);
+          var prevT=ni>0?cmds[ni-1].type:'';
+          var nextT=ni<cmds.length-1?cmds[ni+1].type:'';
+          var isSm=(prevT==='C'||prevT==='Q')&&(nextT==='C'||nextT==='Q');
+          if(nc.type==='M'){
+            ctx.save();ctx.strokeStyle=hexRgba(lineCol,1);
+            ctx.fillStyle=bgL?'rgba(255,255,255,0.95)':'rgba(20,20,20,0.95)';
+            ctx.lineWidth=Math.max(1.2,1.8/canvasZoom);
+            ctx.beginPath();ctx.arc(npx,npy,ptSz,0,6.28);ctx.fill();ctx.stroke();
+            ctx.fillStyle=hexRgba(lineCol,0.9);
+            ctx.beginPath();ctx.moveTo(npx+ptSz*0.5,npy);
+            ctx.lineTo(npx-ptSz*0.35,npy-ptSz*0.45);ctx.lineTo(npx-ptSz*0.35,npy+ptSz*0.45);
+            ctx.closePath();ctx.fill();ctx.restore();
+          } else if(isSm){
+            ctx.save();ctx.fillStyle=smoothC;
+            ctx.strokeStyle=bgL?'rgba(255,255,255,0.9)':'rgba(20,20,20,0.7)';
+            ctx.lineWidth=Math.max(0.8,1.2/canvasZoom);
+            ctx.beginPath();ctx.arc(npx,npy,ptSz,0,6.28);ctx.fill();ctx.stroke();ctx.restore();
+          } else {
+            ctx.save();var sqSz=ptSz*1.3;
+            ctx.fillStyle=cornerF;ctx.strokeStyle=cornerS;
+            ctx.lineWidth=Math.max(0.8,1.2/canvasZoom);
+            ctx.fillRect(npx-sqSz/2,npy-sqSz/2,sqSz,sqSz);
+            ctx.strokeRect(npx-sqSz/2,npy-sqSz/2,sqSz,sqSz);ctx.restore();
+          }
+        }
+      }
+    }
+  }
+  var ce=document.getElementById('canvasCoords');
+  if(ce)ce.textContent='zoom:'+canvasZoom.toFixed(2)+'x  AW:'+advW+'  LSB:'+Math.round(lsb)+'  RSB:'+Math.round(rsb)+'  W:'+Math.round(xMaxG-xMinG)+'  H:'+(glyph.yMax!==undefined?Math.round(glyph.yMax-glyph.yMin):'-');
+}
+
+
+function closeGlyphDetail(){
+  var p=document.getElementById('glyphDetailPanel'); if(p) p.style.display='none';
+  gbSel=null;
+}
+
+function postAnalyzeHook(report) {
+  setTimeout(function(){ runBugDetector(); }, 300);
+  setTimeout(function(){ buildGlyphBrowser(); }, 400);
+  var ring=document.getElementById('ringCircle');
+  if(ring){
+    var c=report.scores.grade==='A'||report.scores.grade==='B'?'var(--green)':report.scores.grade==='C'?'var(--yellow)':'var(--red)';
+    setTimeout(function(){ ring.style.stroke=c; },1400);
+  }
+  document.title='Fontoscopy \u00b7 '+report.familyName;
+}
+
+// Keyboard
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeGlyphDetail(); });
+
+</script>
+</body>
+</html>
